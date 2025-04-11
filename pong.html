@@ -37,15 +37,6 @@
       text-decoration: underline;
     }
 
-    /* Ball Trail (motion blur) */
-    .ball-trail {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      pointer-events: none;
-      transition: transform 0.2s;
-    }
-
     /* Flash on Impact */
     .impact-flash {
       background: white;
@@ -115,11 +106,14 @@
       ctx.closePath();
     }
 
-    // Draw Score
+    // Draw Score with pulse effect
     function drawScore() {
       ctx.font = "32px Courier New";
       ctx.fillStyle = "#00fff7";
       ctx.fillText(playerScore + " - " + aiScore, canvas.width / 2 - 60, 50);
+      if (playerScore % 2 === 0 && playerScore > 0) {
+        ctx.scale(1.1, 1.1); // Pulse effect on score
+      }
     }
 
     // Draw Timer

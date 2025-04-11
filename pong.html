@@ -13,37 +13,51 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: start;
       height: 100vh;
       overflow: hidden;
+      padding: 10px;
     }
 
     h1 {
-      margin-top: 20px;
       font-size: 2rem;
+      margin: 10px;
       text-shadow: 0 0 10px #00fff7;
     }
 
     #scoreboard {
-      font-size: 2rem;
-      color: #00fff7;
-      text-shadow: 0 0 8px #00fff7;
+      font-size: 1.5rem;
       margin: 10px 0;
+      text-shadow: 0 0 8px #00fff7;
+    }
+
+    #difficulty {
+      margin-bottom: 10px;
+      font-size: 1rem;
+      color: #00fff7;
+    }
+
+    select {
+      background: #111;
+      color: #00fff7;
+      border: 1px solid #00fff7;
+      padding: 4px 8px;
+      font-family: 'Courier New', monospace;
     }
 
     canvas {
       background: #111;
       border: 3px solid #00fff7;
       box-shadow: 0 0 20px #00fff7;
+      touch-action: none;
     }
 
     .back-link {
-      margin-top: 20px;
+      margin-top: 10px;
       color: #00fff7;
       cursor: pointer;
       text-decoration: none;
       border-bottom: 1px dashed #00fff7;
-      transition: color 0.3s ease;
     }
 
     .back-link:hover {
@@ -53,35 +67,51 @@
 </head>
 <body>
   <h1>🏓 Linux Pong</h1>
+
+  <div id="difficulty">
+    Difficulty:
+    <select id="difficultySelect">
+      <option value="2">Easy</option>
+      <option value="3" selected>Medium</option>
+      <option value="5">Hard</option>
+    </select>
+  </div>
+
   <div id="scoreboard">
     <span id="playerScore">0</span> : <span id="aiScore">0</span>
   </div>
+
   <canvas id="pongCanvas"></canvas>
+
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
   <script>
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
 
-    function resizeCanvas() {
-      canvas.width = Math.min(window.innerWidth * 0.9, 600);
-      canvas.height = Math.min(window.innerHeight * 0.6, 400);
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
     const paddleWidth = 10;
     const paddleHeight = 80;
     const ballSize = 10;
 
-    let playerY = canvas.height / 2 - paddleHeight / 2;
-    let aiY = canvas.height / 2 - paddleHeight / 2;
-    let ballX = canvas.width / 2;
-    let ballY = canvas.height / 2;
+    let playerY = 0, aiY = 0;
+    let ballX = 0, ballY = 0;
     let ballVX = 4, ballVY = 4;
+    let aiSpeed = 3;
 
     let playerScore = 0;
     let aiScore = 0;
+
+    function resizeCanvas() {
+      canvas.width = Math.min(window.innerWidth * 0.9, 600);
+      canvas.height = Math.min(window.innerHeight * 0.6, 400);
+      playerY = canvas.height / 2 - paddleHeight / 2;
+      aiY = canvas.height / 2 - paddleHeight / 2;
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
     function drawPaddle(x, y) {
       ctx.fillStyle = "#00fff7";
@@ -101,23 +131,24 @@
       document.getElementById("aiScore").textContent = aiScore;
     }
 
+    function resetBall() {
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+      ballVX *= -1;
+    }
+
     function draw() {
-      // Cool trail effect
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Player & AI Paddles
-      drawPaddle(0, playerY);
-      drawPaddle(canvas.width - paddleWidth, aiY);
-
-      // Ball
+      drawPaddle(0, playerY); // Player
+      drawPaddle(canvas.width - paddleWidth, aiY); // AI
       drawBall(ballX, ballY);
 
-      // Ball movement
       ballX += ballVX;
       ballY += ballVY;
 
-      // Wall collision
+      // Wall bounce
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
       }
@@ -140,18 +171,17 @@
         ballVX *= -1;
       }
 
-      // AI movement (smooth)
+      // AI follows ball
       const aiCenter = aiY + paddleHeight / 2;
-      if (aiCenter < ballY - 10) aiY += 3;
-      else if (aiCenter > ballY + 10) aiY -= 3;
+      if (aiCenter < ballY - 10) aiY += aiSpeed;
+      else if (aiCenter > ballY + 10) aiY -= aiSpeed;
 
-      // Score logic
+      // Scoring
       if (ballX < 0) {
         aiScore++;
         updateScore();
         resetBall();
-      }
-      if (ballX > canvas.width) {
+      } else if (ballX > canvas.width) {
         playerScore++;
         updateScore();
         resetBall();
@@ -160,17 +190,26 @@
       requestAnimationFrame(draw);
     }
 
-    function resetBall() {
-      ballX = canvas.width / 2;
-      ballY = canvas.height / 2;
-      ballVX *= -1;
-    }
-
-    // Mouse move for player paddle
+    // Mouse control
     document.addEventListener("mousemove", (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleY = canvas.height / rect.height;
       playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
+    });
+
+    // Touch control
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const scaleY = canvas.height / rect.height;
+      playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
+    }, { passive: false });
+
+    // Difficulty selector
+    const difficultySelect = document.getElementById("difficultySelect");
+    difficultySelect.addEventListener("change", (e) => {
+      aiSpeed = parseInt(e.target.value);
     });
 
     draw();

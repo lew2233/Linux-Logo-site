@@ -3,65 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini Games Zone</title>
+  <title>🐧 Linux Clicker</title>
   <style>
     body {
-      background-color: #000;
-      color: #00ffcc;
+      margin: 0;
+      background: #000;
+      color: #00fff7;
       font-family: 'Courier New', monospace;
       text-align: center;
       padding-top: 50px;
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-
-    .game-area {
-      margin-top: 40px;
-    }
-
-    .click-btn {
-      padding: 20px 30px;
-      font-size: 1.5rem;
-      background: #00ffcc;
-      border: none;
-      border-radius: 10px;
-      color: #000;
-      cursor: pointer;
+      font-size: 3rem;
+      text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7;
     }
 
     .score {
       font-size: 2rem;
-      margin-top: 20px;
+      margin: 20px 0;
+      color: #ffeb3b;
     }
 
-    .back-btn {
-      margin-top: 40px;
-      display: inline-block;
-      font-size: 1rem;
-      color: #00ffcc;
-      text-decoration: underline;
+    .click-btn {
+      padding: 20px 40px;
+      font-size: 1.5rem;
+      background: #00fff7;
+      color: #000;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 0 10px #00fff7;
+    }
+
+    .click-btn:hover {
+      transform: scale(1.05);
+      background: #00ccff;
+      box-shadow: 0 0 20px #00fff7, 0 0 30px #00fff7;
+    }
+
+    .back-link {
+      margin-top: 40px;
+      color: #00fff7;
+      text-decoration: underline;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 50px;
+    }
+
+    .back-link:hover {
+      text-decoration: none;
+      color: #ffeb3b;
+    }
+
+    .tux {
+      width: 80px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>🕹️ Mini Game: Linux Clicker 🐧</h1>
+  <h1>🐧 Linux Clicker</h1>
 
-  <div class="game-area">
-    <button class="click-btn" onclick="increaseScore()">Click Me!</button>
-    <div class="score" id="scoreDisplay">Score: 0</div>
+  <div class="score">
+    <p>Points: <span id="points">0</span></p>
   </div>
+
+  <button class="click-btn" onclick="addPoints()">Click Me!</button>
 
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="tux" />
+
   <script>
-    let score = 0;
-    function increaseScore() {
-      score++;
-      document.getElementById("scoreDisplay").textContent = "Score: " + score;
+    let points = 0;
+
+    function addPoints() {
+      points++;
+      document.getElementById('points').textContent = points;
     }
   </script>
 </body>

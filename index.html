@@ -2,148 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fun Linux Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spicy Linux Page</title>
   <style>
-    /* Basic Styles */
-    body {
+    html, body {
       margin: 0;
-      height: 100vh;
+      padding: 0;
+      height: 100%;
+      background-color: #1e1e1e;
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .container {
+      z-index: 1;
+      position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      font-family: 'Courier New', monospace;
-      background: #2a2a2a;
-      color: white;
-      transition: background-color 0.5s ease;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
     }
 
-    /* Fun Text Effects */
     h1 {
       font-size: 3rem;
-      margin-bottom: 20px;
-      color: #00ffcc;
-      text-align: center;
-      animation: fadeIn 2s ease-out;
+      margin-bottom: 10px;
+      animation: glow 2s infinite alternate;
     }
 
-    p {
-      font-size: 1.2rem;
-      color: #00ffcc;
-      text-align: center;
-      max-width: 600px;
-      animation: fadeIn 2s ease-out;
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00ffcc; }
+      to { text-shadow: 0 0 30px #00ffcc; }
     }
 
-    /* Hover Effects */
-    button, select {
-      background-color: #00ffcc;
-      color: black;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      border-radius: 5px;
-    }
-
-    button:hover, select:hover {
-      background-color: #00bba0;
-      transform: scale(1.1);
-    }
-
-    /* Linux Logo Styling */
     img {
-      max-width: 250px;
+      width: 200px;
+      margin: 20px 0;
+      cursor: pointer;
       transition: transform 0.3s ease;
-      filter: drop-shadow(0 0 15px #00ffcc);
     }
 
     img:hover {
-      transform: rotate(360deg) scale(1.2);
+      animation: bounce 1s infinite;
     }
 
-    /* Dark Mode Button */
-    #darkModeBtn {
-      margin-top: 30px;
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
     }
 
-    /* Fun Animations */
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+    .terminal {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      height: 1.5rem;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Dark Mode Styles */
-    body.dark-mode {
-      background: #121212;
-      color: white;
-    }
-
-    body.dark-mode button, body.dark-mode select {
+    button, select {
+      margin: 5px;
+      padding: 10px 15px;
       background-color: #00ffcc;
-      color: black;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+      z-index: 2;
+    }
+
+    button:hover, select:hover {
+      transform: scale(1.1);
+    }
+
+    #fact {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      color: #ffffff;
+      max-width: 600px;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to the Fun Linux Page!</h1>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo" id="linuxLogo">
-  
-  <p>Click the button to get a random fun Linux fact or change the background color!</p>
-  
-  <button id="factBtn">Get Linux Fun Fact</button>
-  <button id="changeBgBtn">Change Background Color</button>
-  
-  <p id="fact"></p>
+  <div id="particles-js"></div>
+  <div class="container">
+    <h1>🔥 Spicy Linux Page 🔥</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" id="tux" alt="Tux Linux Logo">
 
-  <select id="colorSelect">
-    <option value="blue">Blue</option>
-    <option value="red">Red</option>
-    <option value="green">Green</option>
-    <option value="yellow">Yellow</option>
-    <option value="purple">Purple</option>
-    <option value="orange">Orange</option>
-    <option value="black">Black</option>
-  </select>
-  
-  <button id="darkModeBtn">Toggle Dark Mode</button>
+    <div class="terminal" id="terminalText"></div>
 
+    <button id="factBtn">Get Linux Fun Fact</button>
+    <button id="changeBgBtn">Change Background Color</button>
+    <select id="colorSelect">
+      <option value="black">Black</option>
+      <option value="blue">Blue</option>
+      <option value="purple">Purple</option>
+      <option value="green">Green</option>
+      <option value="orange">Orange</option>
+    </select>
+    <button id="darkModeBtn">Toggle Dark Mode</button>
+
+    <p id="fact"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
-    // Fun Linux Facts
-    const facts = [
-      "Linux was created by Linus Torvalds in 1991.",
-      "Linux is open-source, meaning anyone can modify and distribute it.",
-      "The Tux penguin is the official mascot of Linux.",
-      "There are over 300 distributions of Linux.",
-      "The first Linux kernel was just 10,000 lines of code."
-      "The majority of websites that you visit on the Internet run on Linux-based servers."
-      "Space programs by NASA, SpaceX, and many other space agencies rely on Linux."
-      "Linux is a genuine washing powder brand in Switzerland."
-      "Linux was the first desktop operating system that introduced USB 3.0 drivers."
-    ];
-
-    // Random Fun Fact Button
-    const factBtn = document.getElementById('factBtn');
-    const factDisplay = document.getElementById('fact');
-
-    factBtn.addEventListener('click', () => {
-      const randomFact = facts[Math.floor(Math.random() * facts.length)];
-      factDisplay.textContent = randomFact;
+    // Background Particles
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#00ffcc" },
+        shape: { type: "circle" },
+        opacity: { value: 0.3, random: true },
+        size: { value: 3, random: true },
+        move: { enable: true, speed: 1 }
+      },
+      interactivity: {
+        events: { onhover: { enable: true, mode: "repulse" } }
+      }
     });
 
-    // Change Background Color
+    // Terminal Typing Effect
+    const terminalText = document.getElementById('terminalText');
+    const messages = [
+      "Booting up Linux...",
+      "Running sudo fun --now",
+      "You are now root. 😎",
+      "Fetching penguin facts...",
+      "Linux is love. Linux is life."
+    ];
+    let messageIndex = 0;
+    let charIndex = 0;
+
+    function typeTerminal() {
+      if (charIndex < messages[messageIndex].length) {
+        terminalText.textContent += messages[messageIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(typeTerminal, 100);
+      } else {
+        setTimeout(() => {
+          terminalText.textContent = '';
+          charIndex = 0;
+          messageIndex = (messageIndex + 1) % messages.length;
+          typeTerminal();
+        }, 2000);
+      }
+    }
+    typeTerminal();
+
+    // Linux Fun Facts
+    const facts = [
+      "Linux is the operating system behind Android!",
+      "Most of the internet runs on Linux servers.",
+      "The word 'Linux' is pronounced as 'Leen-uks' by Linus himself!",
+      "NASA uses Linux in their space missions!",
+      "Tux was created by Larry Ewing in 1996."
+    ];
+    const factBtn = document.getElementById('factBtn');
+    const factDisplay = document.getElementById('fact');
+    factBtn.addEventListener('click', () => {
+      const fact = facts[Math.floor(Math.random() * facts.length)];
+      factDisplay.textContent = fact;
+    });
+
+    // Background Color Change
     const colorSelect = document.getElementById('colorSelect');
-    colorSelect.addEventListener('change', (event) => {
-      const selectedColor = event.target.value;
-      document.body.style.backgroundColor = selectedColor;
+    colorSelect.addEventListener('change', e => {
+      document.body.style.backgroundColor = e.target.value;
+    });
+
+    const changeBgBtn = document.getElementById('changeBgBtn');
+    changeBgBtn.addEventListener('click', () => {
+      const colors = ['#000000', '#2200ff', '#5f00a0', '#007744', '#ff6600'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      document.body.style.backgroundColor = randomColor;
     });
 
     // Dark Mode Toggle
@@ -152,21 +193,10 @@
       document.body.classList.toggle('dark-mode');
     });
 
-    // Change Background Color Button
-    const changeBgBtn = document.getElementById('changeBgBtn');
-    changeBgBtn.addEventListener('click', () => {
-      const colors = ['blue', 'red', 'green', 'yellow', 'purple', 'orange', 'black'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      document.body.style.backgroundColor = randomColor;
-    });
-
-    // Fun Linux Logo Animation
-    const linuxLogo = document.getElementById('linuxLogo');
-    linuxLogo.addEventListener('click', () => {
-      linuxLogo.style.transform = "rotate(360deg)";
-      setTimeout(() => {
-        linuxLogo.style.transform = "rotate(0deg)";
-      }, 1000);
+    // Easter Egg on Logo Click
+    const tux = document.getElementById('tux');
+    tux.addEventListener('click', () => {
+      alert("🐧 You found the secret penguin! 🐧\nKeep on hacking, friend!");
     });
   </script>
 </body>

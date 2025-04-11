@@ -184,20 +184,17 @@
 
     // ASCII animation for loading screen
     const asciiArt = [
-      ____    __    ____  _______  __        ______   ______   .___  ___.  _______ 
-\   \  /  \  /   / |   ____||  |      /      | /  __  \  |   \/   | |   ____|
- \   \/    \/   /  |  |__   |  |     |  ,----'|  |  |  | |  \  /  | |  |__   
-  \            /   |   __|  |  |     |  |     |  |  |  | |  |\/|  | |   __|  
-   \    /\    /    |  |____ |  `----.|  `----.|  `--'  | |  |  |  | |  |____ 
-    \__/  \__/     |_______||_______| \______| \______/  |__|  |__| |_______|
-                                                                             
-.___________.  ______       __       __  .__   __.  __    __  ___   ___      
-|           | /  __  \     |  |     |  | |  \ |  | |  |  |  | \  \ /  /      
-`---|  |----`|  |  |  |    |  |     |  | |   \|  | |  |  |  |  \  V  /       
-    |  |     |  |  |  |    |  |     |  | |  . `  | |  |  |  |   >   <        
-    |  |     |  `--'  |    |  `----.|  | |  |\   | |  `--'  |  /  .  \       
-    |__|      \______/     |_______||__| |__| \__|  \______/  /__/ \__\      
-                                                                             
+      `   _____  _       ___   ____  _   __    _   _ \n`,
+      `  / ____|| |     / _ \\ |  _ \\| | / /  | | | |\n`,
+      ` | |__   | |    | | | || |_) | |/ /   | |_| |\n`,
+      `  \\__ \\  | |    | | | ||  _ <|   <    |  _  |\n`,
+      `  ___) | | |___ | |_| || |_) | . \\   | | | |\n`,
+      ` |____/  |_____||___/ |____/|_|\\_\\  |_| |_|\n`,
+      `   _____  ___   ___   _____   _____    ____ \n`,
+      `  |  __ \\ / _ \\ / _ \\ / ____| |  __ \\  / __ \\\n`,
+      `  | |__) | | | | | | | |__    | |__) || |  | |\n`,
+      `  |  ___/| |_| | |_| |  __|   |  ___/ | |  | |\n`,
+      `  | |    |___/ \\___/|_____|  |_|     |_|  |_|\n`,
       `  .....beastmode..... 🏓🔥\n`
     ];
 
@@ -218,7 +215,25 @@
       }
     }
 
+    // Fetch System Info (IP, Browser, Location)
+    async function fetchSystemInfo() {
+      try {
+        const ipInfoResponse = await fetch("https://ipinfo.io?token=YOUR_API_KEY");
+        const ipData = await ipInfoResponse.json();
+        
+        const browserInfo = navigator.userAgent;
+        const location = ipData.city + ", " + ipData.region + ", " + ipData.country;
 
+        const systemInfoElement = document.getElementById("systemInfo");
+        systemInfoElement.innerHTML = `
+          <strong>IP:</strong> ${ipData.ip}<br>
+          <strong>Browser:</strong> ${browserInfo}<br>
+          <strong>Location:</strong> ${location}<br>
+        `;
+      } catch (err) {
+        console.error("Error fetching system info:", err);
+      }
+    }
 
     // Terminal text loop
     const terminalText = document.getElementById('terminalText');

@@ -6,17 +6,17 @@
   <title>Ultimate Linux Webzone</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100%;
-      background-color: #0f0f0f;
-      color: #00ffcc;
-      font-family: 'Courier New', monospace;
-      overflow-x: hidden;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-      cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
-    }
+     margin: 0;
+     padding: 0;
+     min-height: 100%;
+     background-color: #0f0f0f;
+     color: #00ffcc;
+     font-family: 'Courier New', monospace;
+     overflow-x: hidden;
+     overflow-y: auto;
+     scroll-behavior: smooth;
+     cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
+  }
 
     #particles-js {
       position: fixed;
@@ -26,16 +26,16 @@
     }
 
     .container {
-      z-index: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding-top: 80px;
-      padding-bottom: 60px;
-      text-align: center;
-    }
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 80px;
+    padding-bottom: 60px;
+    text-align: center;
+  }
 
     h1 {
       font-size: 3rem;
@@ -115,30 +115,10 @@
       color: #ff00c8;
       font-size: 1.2rem;
     }
-
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: black;
-      color: #00ffcc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.5rem;
-      font-family: 'Courier New', monospace;
-      z-index: 100;
-    }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
-  <div class="loading-screen" id="loadingScreen">
-    <pre id="asciiAnimation"></pre>
-  </div>
-
   <div class="container">
     <h1>🔥 Ultimate Linux Webzone 🔥</h1>
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" id="tux" alt="Tux Linux Logo">
@@ -160,7 +140,6 @@
 
     <p id="fact"></p>
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
-    <p id="systemInfo"></p>
   </div>
 
   <audio id="pingSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
@@ -181,59 +160,6 @@
         events: { onhover: { enable: true, mode: "repulse" } }
       }
     });
-
-    // ASCII animation for loading screen
-    const asciiArt = [
-      `   _____  _       ___   ____  _   __    _   _ \n`,
-      `  / ____|| |     / _ \\ |  _ \\| | / /  | | | |\n`,
-      ` | |__   | |    | | | || |_) | |/ /   | |_| |\n`,
-      `  \\__ \\  | |    | | | ||  _ <|   <    |  _  |\n`,
-      `  ___) | | |___ | |_| || |_) | . \\   | | | |\n`,
-      ` |____/  |_____||___/ |____/|_|\\_\\  |_| |_|\n`,
-      `   _____  ___   ___   _____   _____    ____ \n`,
-      `  |  __ \\ / _ \\ / _ \\ / ____| |  __ \\  / __ \\\n`,
-      `  | |__) | | | | | | | |__    | |__) || |  | |\n`,
-      `  |  ___/| |_| | |_| |  __|   |  ___/ | |  | |\n`,
-      `  | |    |___/ \\___/|_____|  |_|     |_|  |_|\n`,
-      `  .....beastmode..... 🏓🔥\n`
-    ];
-
-    let asciiIndex = 0;
-    let loadingScreen = document.getElementById("loadingScreen");
-    let asciiElement = document.getElementById("asciiAnimation");
-
-    // Function to animate the loading ASCII
-    function animateLoadingScreen() {
-      if (asciiIndex < asciiArt.length) {
-        asciiElement.textContent += asciiArt[asciiIndex];
-        asciiIndex++;
-        setTimeout(animateLoadingScreen, 300);
-      } else {
-        setTimeout(() => {
-          loadingScreen.style.display = "none"; // Hide loading screen after animation
-        }, 500);
-      }
-    }
-
-    // Fetch System Info (IP, Browser, Location)
-    async function fetchSystemInfo() {
-      try {
-        const ipInfoResponse = await fetch("https://ipinfo.io?token=YOUR_API_KEY");
-        const ipData = await ipInfoResponse.json();
-        
-        const browserInfo = navigator.userAgent;
-        const location = ipData.city + ", " + ipData.region + ", " + ipData.country;
-
-        const systemInfoElement = document.getElementById("systemInfo");
-        systemInfoElement.innerHTML = `
-          <strong>IP:</strong> ${ipData.ip}<br>
-          <strong>Browser:</strong> ${browserInfo}<br>
-          <strong>Location:</strong> ${location}<br>
-        `;
-      } catch (err) {
-        console.error("Error fetching system info:", err);
-      }
-    }
 
     // Terminal text loop
     const terminalText = document.getElementById('terminalText');
@@ -320,10 +246,6 @@
         }, 3000);
       }
     });
-
-    // Call the functions
-    animateLoadingScreen();
-    fetchSystemInfo();
   </script>
 </body>
 </html>

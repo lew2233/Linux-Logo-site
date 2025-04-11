@@ -13,148 +13,100 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: start;
+      justify-content: center;
       height: 100vh;
       overflow: hidden;
-      padding: 10px;
     }
 
     h1 {
+      margin-top: 20px;
       font-size: 2rem;
-      margin: 10px;
       text-shadow: 0 0 10px #00fff7;
-    }
-
-    #scoreboard {
-      font-size: 1.5rem;
-      margin: 10px 0;
-      text-shadow: 0 0 8px #00fff7;
-    }
-
-    #difficulty {
-      margin-bottom: 10px;
-      font-size: 1rem;
-      color: #00fff7;
-    }
-
-    select {
-      background: #111;
-      color: #00fff7;
-      border: 1px solid #00fff7;
-      padding: 4px 8px;
-      font-family: 'Courier New', monospace;
     }
 
     canvas {
       background: #111;
       border: 3px solid #00fff7;
       box-shadow: 0 0 20px #00fff7;
-      touch-action: none;
     }
 
     .back-link {
-      margin-top: 10px;
+      margin-top: 20px;
       color: #00fff7;
       cursor: pointer;
-      text-decoration: none;
-      border-bottom: 1px dashed #00fff7;
+      text-decoration: underline;
     }
 
-    .game-over {
+    /* Ball Trail (motion blur) */
+    .ball-trail {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+      transition: transform 0.2s;
+    }
+
+    /* Flash on Impact */
+    .impact-flash {
+      background: white;
       position: absolute;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      color: #00fff7;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      text-align: center;
-      z-index: 10;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
     }
 
-    .restart-btn {
-      margin-top: 20px;
-      background: none;
-      border: 2px solid #00fff7;
-      color: #00fff7;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-family: 'Courier New', monospace;
-    }
-
-    .restart-btn:hover {
-      color: #ff00c8;
-      border-color: #ff00c8;
+    /* Retro Styling */
+    .classic-theme {
+      color: #00ff00;
+      background-color: black;
+      border: 2px solid #00ff00;
     }
   </style>
 </head>
 <body>
   <h1>🏓 Linux Pong</h1>
-
-  <div id="difficulty">
-    Difficulty:
-    <select id="difficultySelect">
-      <option value="1.5">Easy</option>
-      <option value="2.5" selected>Medium</option>
-      <option value="3.5">Hard</option>
-    </select>
-  </div>
-
-  <div id="scoreboard">
-    <span id="playerScore">0</span> : <span id="aiScore">0</span>
-  </div>
-
-  <canvas id="pongCanvas"></canvas>
-
+  <canvas id="pongCanvas" width="600" height="400"></canvas>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
-  <div id="gameOverScreen" class="game-over" style="display: none;">
-    <div id="gameOverText">Game Over</div>
-    <button class="restart-btn" onclick="restartGame()">Restart</button>
-  </div>
-
-  <!-- Sounds (base64-encoded short sfx) -->
-  <audio id="bounce" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAABAQABAQABAQABAQABAQABAQABAQAB" preload="auto"></audio>
-  <audio id="score" src="data:audio/wav;base64,UklGRgAAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAAA//8A" preload="auto"></audio>
-  <audio id="gameover" src="data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAD//w==" preload="auto"></audio>
+  <div class="impact-flash" id="impactFlash"></div>
 
   <script>
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
 
-    const paddleWidth = 10, paddleHeight = 80, ballSize = 10;
-    let playerY, aiY, ballX, ballY, ballVX = 4, ballVY = 4;
-    let aiSpeed = 2.5;
+    const paddleWidth = 10, paddleHeight = 80;
+    const ballSize = 10;
+
+    let playerY = canvas.height / 2 - paddleHeight / 2;
+    let aiY = canvas.height / 2 - paddleHeight / 2;
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height / 2;
+    let ballVX = 4, ballVY = 4;
+
+    // Score and multipliers
     let playerScore = 0, aiScore = 0;
-    let isGameOver = false;
+    let scoreMultiplier = 1;
+    let speedBoostActive = false;
+    let freezeAI = false;
+    let gameTimer = 0;
 
-    const bounceSound = document.getElementById("bounce");
-    const scoreSound = document.getElementById("score");
-    const gameoverSound = document.getElementById("gameover");
+    // Ball Trail
+    let ballTrail = [];
 
-    function resizeCanvas() {
-      canvas.width = Math.min(window.innerWidth * 0.9, 600);
-      canvas.height = Math.min(window.innerHeight * 0.6, 400);
-      playerY = canvas.height / 2 - paddleHeight / 2;
-      aiY = canvas.height / 2 - paddleHeight / 2;
-      ballX = canvas.width / 2;
-      ballY = canvas.height / 2;
-    }
+    // Impact Flash
+    const impactFlash = document.getElementById("impactFlash");
 
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
+    // Draw Paddle
     function drawPaddle(x, y) {
       ctx.fillStyle = "#00fff7";
       ctx.fillRect(x, y, paddleWidth, paddleHeight);
     }
 
+    // Draw Ball
     function drawBall(x, y) {
       ctx.beginPath();
       ctx.arc(x, y, ballSize, 0, Math.PI * 2);
@@ -163,116 +115,168 @@
       ctx.closePath();
     }
 
-    function updateScore() {
-      document.getElementById("playerScore").textContent = playerScore;
-      document.getElementById("aiScore").textContent = aiScore;
+    // Draw Score
+    function drawScore() {
+      ctx.font = "32px Courier New";
+      ctx.fillStyle = "#00fff7";
+      ctx.fillText(playerScore + " - " + aiScore, canvas.width / 2 - 60, 50);
     }
 
-    function resetBall() {
-      ballX = canvas.width / 2;
-      ballY = canvas.height / 2;
-      ballVX *= Math.random() > 0.5 ? 1 : -1;
-      ballVY = 4 * (Math.random() > 0.5 ? 1 : -1);
+    // Draw Timer
+    function drawTimer() {
+      ctx.font = "16px Courier New";
+      ctx.fillStyle = "#00fff7";
+      ctx.fillText("Time: " + gameTimer, canvas.width - 100, 30);
     }
 
-    function gameOver(winner) {
-      isGameOver = true;
-      document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
-      document.getElementById("gameOverScreen").style.display = "flex";
-      gameoverSound.play();
+    // Update Game Timer
+    function updateTimer() {
+      gameTimer++;
+      setTimeout(updateTimer, 1000);
     }
 
-    function restartGame() {
-      playerScore = 0;
-      aiScore = 0;
-      updateScore();
-      resetBall();
-      document.getElementById("gameOverScreen").style.display = "none";
-      isGameOver = false;
-      draw();
+    // Ball Trail Effect
+    function addBallTrail(x, y) {
+      ballTrail.push({ x, y });
+      if (ballTrail.length > 5) {
+        ballTrail.shift();
+      }
     }
 
+    // Ball Trail Rendering
+    function drawBallTrail() {
+      ballTrail.forEach(trail => {
+        ctx.beginPath();
+        ctx.arc(trail.x, trail.y, ballSize, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.fill();
+        ctx.closePath();
+      });
+    }
+
+    // Impact Flash Effect
+    function triggerImpactFlash() {
+      impactFlash.style.opacity = 1;
+      setTimeout(() => {
+        impactFlash.style.opacity = 0;
+      }, 100);
+    }
+
+    // Ball Speed Boost
+    function speedBoost() {
+      ballVX *= 1.5;
+      ballVY *= 1.5;
+      speedBoostActive = true;
+      setTimeout(() => {
+        ballVX /= 1.5;
+        ballVY /= 1.5;
+        speedBoostActive = false;
+      }, 5000);
+    }
+
+    // Freeze AI Effect
+    function freezeAIPlayer() {
+      freezeAI = true;
+      setTimeout(() => {
+        freezeAI = false;
+      }, 2000);
+    }
+
+    // Update AI
+    function updateAI() {
+      if (freezeAI) return;
+      const aiCenter = aiY + paddleHeight / 2;
+      if (aiCenter < ballY) aiY += 3;
+      else aiY -= 3;
+    }
+
+    // Game Logic
     function draw() {
-      if (isGameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Ball Trail
+      drawBallTrail();
 
-      drawPaddle(0, playerY); // Player
-      drawPaddle(canvas.width - paddleWidth, aiY); // AI
+      // Draw Paddles
+      drawPaddle(0, playerY);
+      drawPaddle(canvas.width - paddleWidth, aiY);
+
+      // Draw Ball
       drawBall(ballX, ballY);
 
+      // Draw Score
+      drawScore();
+
+      // Draw Timer
+      drawTimer();
+
+      // Move Ball
       ballX += ballVX;
       ballY += ballVY;
 
+      // Ball Boundaries
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
-        bounceSound.play();
       }
 
-      // Player paddle
-      if (
-        ballX - ballSize < paddleWidth &&
-        ballY > playerY &&
-        ballY < playerY + paddleHeight
-      ) {
+      // Ball Impact on Paddles
+      if (ballX - ballSize < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
         ballVX *= -1;
-        bounceSound.play();
+        triggerImpactFlash();
+        if (speedBoostActive) {
+          speedBoost();
+        }
+        if (Math.random() < 0.5) {
+          speedBoost(); // Random chance to trigger speed boost
+        }
+        playerScore += scoreMultiplier;
       }
 
-      // AI paddle
-      if (
-        ballX + ballSize > canvas.width - paddleWidth &&
-        ballY > aiY &&
-        ballY < aiY + paddleHeight
-      ) {
+      if (ballX + ballSize > canvas.width - paddleWidth && ballY > aiY && ballY < aiY + paddleHeight) {
         ballVX *= -1;
-        bounceSound.play();
+        triggerImpactFlash();
+        aiScore += scoreMultiplier;
       }
 
-      // AI follows ball with random inaccuracy
-      const aiCenter = aiY + paddleHeight / 2;
-      if (Math.abs(aiCenter - ballY) > 10) {
-        if (aiCenter < ballY - 10) aiY += aiSpeed + Math.random() * 1;
-        else aiY -= aiSpeed + Math.random() * 1;
+      // AI Movement
+      updateAI();
+
+      // Ball Out of Bounds
+      if (ballX < 0 || ballX > canvas.width) {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+        ballVX *= -1;
       }
 
-      // Score
-      if (ballX < 0) {
-        aiScore++;
-        scoreSound.play();
-        updateScore();
-        if (aiScore >= 5) return gameOver("AI");
-        resetBall();
-      } else if (ballX > canvas.width) {
-        playerScore++;
-        scoreSound.play();
-        updateScore();
-        if (playerScore >= 5) return gameOver("Player");
-        resetBall();
+      // Game Over
+      if (playerScore >= 10 || aiScore >= 10) {
+        alert(playerScore > aiScore ? "You won!" : "AI won!");
+        playerScore = 0;
+        aiScore = 0;
       }
 
       requestAnimationFrame(draw);
     }
 
+    // User Input
     document.addEventListener("mousemove", (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleY = canvas.height / rect.height;
       playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
     });
 
-    canvas.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      const scaleY = canvas.height / rect.height;
-      playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
-    }, { passive: false });
-
-    document.getElementById("difficultySelect").addEventListener("change", (e) => {
-      aiSpeed = parseFloat(e.target.value);
+    // Keypress for Features
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "1") {
+        document.body.classList.add("classic-theme");
+      } else if (e.key === "2") {
+        ballTrail.push({ x: ballX, y: ballY });
+      } else if (e.key === "3") {
+        scoreMultiplier = 2;
+      }
     });
 
+    updateTimer();
     draw();
   </script>
 </body>

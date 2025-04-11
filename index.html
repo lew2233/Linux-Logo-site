@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Welcome to Linux - Explore the world of Linux with an interactive and dynamic page.">
   <title>Welcome to Linux</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: radial-gradient(circle at center, #000000, #1a1a1a); /* Initial gradient */
+      background: radial-gradient(circle at center, #000000, #1a1a1a); 
       animation: bgPulse 10s infinite alternate;
       display: flex;
       flex-direction: column;
@@ -25,14 +27,13 @@
     }
 
     img:hover {
-      transform: rotate(360deg) scale(1.1); /* Spins the logo */
+      transform: rotate(360deg) scale(1.1);
       transition: transform 1s;
     }
 
     .terminal {
       margin-top: 20px;
       font-size: 1.5rem;
-      animation: blink 1s step-start infinite;
       white-space: nowrap;
       overflow: hidden;
       width: 0;
@@ -62,11 +63,12 @@
       color: black;
       border: none;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s;
     }
 
     button:hover {
       background-color: #00bba0;
+      transform: scale(1.05);
     }
 
     select {
@@ -81,8 +83,8 @@
   </style>
 </head>
 <body>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo">
-  <p class="terminal" id="terminalText"></p>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo - Tux">
+  <p class="terminal" id="terminalText" aria-live="polite"></p>
 
   <button id="changeBgBtn">Change Background Color</button>
   <select id="colorSelect">
@@ -96,35 +98,43 @@
   </select>
 
   <script>
-  // Typing effect for terminal text
-  const terminalText = document.getElementById('terminalText');
-  const textToType = "Welcome to Linux";
-  let index = 0;
+    // Typing effect for terminal text
+    const terminalText = document.getElementById('terminalText');
+    const textToType = `Welcome to Linux\nCurrent Date and Time: `;
+    let index = 0;
 
-  function typeText() {
-    if (index < textToType.length) {
-      terminalText.textContent += textToType[index++];
-      setTimeout(typeText, 150); // Speed of typing
+    function typeText() {
+      if (index < textToType.length) {
+        terminalText.textContent += textToType[index++];
+        setTimeout(typeText, 150); // Speed of typing
+      } else {
+        displayCurrentDateTime(); // Show date and time once text is fully typed
+      }
     }
-  }
-  typeText();
+    typeText();
 
-  // Change background color based on dropdown selection
-  const colorSelect = document.getElementById('colorSelect');
-  colorSelect.addEventListener('change', (event) => {
-    const selectedColor = event.target.value;
-    document.body.style.backgroundColor = selectedColor;
-  });
+    function displayCurrentDateTime() {
+      const now = new Date();
+      const formattedDateTime = now.toISOString().replace('T', ' ').substring(0, 19); // Format: YYYY-MM-DD HH:MM:SS
+      terminalText.textContent += formattedDateTime;
+    }
 
-  // Add functionality to the button
-  const changeBgBtn = document.getElementById('changeBgBtn');
-  changeBgBtn.addEventListener('click', () => {
-    // Get the selected value from the dropdown
-    const selectedColor = colorSelect.value;
+    // Change background color based on dropdown selection
+    const colorSelect = document.getElementById('colorSelect');
+    const changeBgBtn = document.getElementById('changeBgBtn');
 
-    // Apply the selected color as the background
-    document.body.style.backgroundColor = selectedColor;
-  });
-</script>
+    colorSelect.addEventListener('change', (event) => {
+      const selectedColor = event.target.value;
+      document.body.style.backgroundColor = selectedColor;
+    });
+
+    changeBgBtn.addEventListener('click', () => {
+      // Get the selected value from the dropdown
+      const selectedColor = colorSelect.value;
+
+      // Apply the selected color as the background
+      document.body.style.backgroundColor = selectedColor;
+    });
+  </script>
 </body>
 </html>

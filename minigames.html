@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Games Arcade</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #00fff7;
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .grid-bg {
+      background-image: linear-gradient(#00fff720 1px, transparent 1px),
+                        linear-gradient(90deg, #00fff720 1px, transparent 1px);
+      background-size: 40px 40px;
+      height: 100vh;
+      animation: gridMove 10s linear infinite;
+    }
+
+    @keyframes gridMove {
+      from { background-position: 0 0; }
+      to { background-position: 40px 40px; }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin: 30px 0;
+      text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7;
+    }
+
+    .game-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-top: 50px;
+    }
+
+    .game-btn {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      color: #000;
+      background: #00fff7;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 0 10px #00fff7;
+    }
+
+    .game-btn:hover {
+      transform: scale(1.05);
+      background: #00ccff;
+      box-shadow: 0 0 20px #00fff7, 0 0 30px #00fff7;
+    }
+
+    .back-link {
+      margin-top: 40px;
+      text-align: center;
+      color: #00fff7;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    .penguin {
+      width: 60px;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg">
+    <h1>🕹️ Mini Games Arcade</h1>
+
+    <div class="game-list">
+      <button class="game-btn" onclick="playSound(); window.location.href='pong.html'">🎯 Play Pong</button>
+      <button class="game-btn" onclick="playSound(); window.location.href='clicker.html'">🐧 Linux Clicker</button>
+      <button class="game-btn" onclick="playSound(); alert('Coming soon!')">🧠 Terminal Trivia</button>
+    </div>
+
+    <div class="back-link" onclick="playSound(); window.location.href='index.html'">← Back to Webzone</div>
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="penguin" />
+  </div>
+
+  <audio id="clickSound" src="https://freesound.org/data/previews/522/522654_11328049-lq.mp3"></audio>
+  <script>
+    function playSound() {
+      const sound = document.getElementById('clickSound');
+      sound.currentTime = 0;
+      sound.play();
+    }
+  </script>
+</body>
+</html>

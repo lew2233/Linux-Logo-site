@@ -60,8 +60,37 @@
       border-bottom: 1px dashed #00fff7;
     }
 
-    .back-link:hover {
+    .game-over {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      color: #00fff7;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .restart-btn {
+      margin-top: 20px;
+      background: none;
+      border: 2px solid #00fff7;
+      color: #00fff7;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+
+    .restart-btn:hover {
       color: #ff00c8;
+      border-color: #ff00c8;
     }
   </style>
 </head>
@@ -71,9 +100,9 @@
   <div id="difficulty">
     Difficulty:
     <select id="difficultySelect">
-      <option value="2">Easy</option>
-      <option value="3" selected>Medium</option>
-      <option value="5">Hard</option>
+      <option value="1.5">Easy</option>
+      <option value="2.5" selected>Medium</option>
+      <option value="3.5">Hard</option>
     </select>
   </div>
 
@@ -85,21 +114,29 @@
 
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
+  <div id="gameOverScreen" class="game-over" style="display: none;">
+    <div id="gameOverText">Game Over</div>
+    <button class="restart-btn" onclick="restartGame()">Restart</button>
+  </div>
+
+  <!-- Sounds (base64-encoded short sfx) -->
+  <audio id="bounce" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAABAQABAQABAQABAQABAQABAQABAQAB" preload="auto"></audio>
+  <audio id="score" src="data:audio/wav;base64,UklGRgAAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAAA//8A" preload="auto"></audio>
+  <audio id="gameover" src="data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAD//w==" preload="auto"></audio>
+
   <script>
     const canvas = document.getElementById("pongCanvas");
     const ctx = canvas.getContext("2d");
 
-    const paddleWidth = 10;
-    const paddleHeight = 80;
-    const ballSize = 10;
+    const paddleWidth = 10, paddleHeight = 80, ballSize = 10;
+    let playerY, aiY, ballX, ballY, ballVX = 4, ballVY = 4;
+    let aiSpeed = 2.5;
+    let playerScore = 0, aiScore = 0;
+    let isGameOver = false;
 
-    let playerY = 0, aiY = 0;
-    let ballX = 0, ballY = 0;
-    let ballVX = 4, ballVY = 4;
-    let aiSpeed = 3;
-
-    let playerScore = 0;
-    let aiScore = 0;
+    const bounceSound = document.getElementById("bounce");
+    const scoreSound = document.getElementById("score");
+    const gameoverSound = document.getElementById("gameover");
 
     function resizeCanvas() {
       canvas.width = Math.min(window.innerWidth * 0.9, 600);
@@ -134,10 +171,30 @@
     function resetBall() {
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
-      ballVX *= -1;
+      ballVX *= Math.random() > 0.5 ? 1 : -1;
+      ballVY = 4 * (Math.random() > 0.5 ? 1 : -1);
+    }
+
+    function gameOver(winner) {
+      isGameOver = true;
+      document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
+      document.getElementById("gameOverScreen").style.display = "flex";
+      gameoverSound.play();
+    }
+
+    function restartGame() {
+      playerScore = 0;
+      aiScore = 0;
+      updateScore();
+      resetBall();
+      document.getElementById("gameOverScreen").style.display = "none";
+      isGameOver = false;
+      draw();
     }
 
     function draw() {
+      if (isGameOver) return;
+
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -148,56 +205,62 @@
       ballX += ballVX;
       ballY += ballVY;
 
-      // Wall bounce
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
+        bounceSound.play();
       }
 
-      // Player paddle collision
+      // Player paddle
       if (
         ballX - ballSize < paddleWidth &&
         ballY > playerY &&
         ballY < playerY + paddleHeight
       ) {
         ballVX *= -1;
+        bounceSound.play();
       }
 
-      // AI paddle collision
+      // AI paddle
       if (
         ballX + ballSize > canvas.width - paddleWidth &&
         ballY > aiY &&
         ballY < aiY + paddleHeight
       ) {
         ballVX *= -1;
+        bounceSound.play();
       }
 
-      // AI follows ball
+      // AI follows ball with random inaccuracy
       const aiCenter = aiY + paddleHeight / 2;
-      if (aiCenter < ballY - 10) aiY += aiSpeed;
-      else if (aiCenter > ballY + 10) aiY -= aiSpeed;
+      if (Math.abs(aiCenter - ballY) > 10) {
+        if (aiCenter < ballY - 10) aiY += aiSpeed + Math.random() * 1;
+        else aiY -= aiSpeed + Math.random() * 1;
+      }
 
-      // Scoring
+      // Score
       if (ballX < 0) {
         aiScore++;
+        scoreSound.play();
         updateScore();
+        if (aiScore >= 5) return gameOver("AI");
         resetBall();
       } else if (ballX > canvas.width) {
         playerScore++;
+        scoreSound.play();
         updateScore();
+        if (playerScore >= 5) return gameOver("Player");
         resetBall();
       }
 
       requestAnimationFrame(draw);
     }
 
-    // Mouse control
     document.addEventListener("mousemove", (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleY = canvas.height / rect.height;
       playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
     });
 
-    // Touch control
     canvas.addEventListener("touchmove", (e) => {
       e.preventDefault();
       const rect = canvas.getBoundingClientRect();
@@ -206,10 +269,8 @@
       playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
     }, { passive: false });
 
-    // Difficulty selector
-    const difficultySelect = document.getElementById("difficultySelect");
-    difficultySelect.addEventListener("change", (e) => {
-      aiSpeed = parseInt(e.target.value);
+    document.getElementById("difficultySelect").addEventListener("change", (e) => {
+      aiSpeed = parseFloat(e.target.value);
     });
 
     draw();

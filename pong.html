@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linux Pong</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #00fff7;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #00fff7;
+    }
+
+    canvas {
+      background: #111;
+      border: 3px solid #00fff7;
+      box-shadow: 0 0 20px #00fff7;
+    }
+
+    .back-link {
+      margin-top: 20px;
+      color: #00fff7;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏓 Linux Pong</h1>
+  <canvas id="pongCanvas" width="600" height="400"></canvas>
+  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+
+  <script>
+    const canvas = document.getElementById("pongCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const paddleWidth = 10, paddleHeight = 80;
+    const ballSize = 10;
+
+    let playerY = canvas.height / 2 - paddleHeight / 2;
+    let aiY = canvas.height / 2 - paddleHeight / 2;
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height / 2;
+    let ballVX = 4, ballVY = 4;
+
+    function drawPaddle(x, y) {
+      ctx.fillStyle = "#00fff7";
+      ctx.fillRect(x, y, paddleWidth, paddleHeight);
+    }
+
+    function drawBall(x, y) {
+      ctx.beginPath();
+      ctx.arc(x, y, ballSize, 0, Math.PI * 2);
+      ctx.fillStyle = "#00fff7";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Player Paddle
+      drawPaddle(0, playerY);
+
+      // AI Paddle
+      drawPaddle(canvas.width - paddleWidth, aiY);
+
+      // Ball
+      drawBall(ballX, ballY);
+
+      // Move Ball
+      ballX += ballVX;
+      ballY += ballVY;
+
+      // Bounce on top/bottom
+      if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
+        ballVY *= -1;
+      }
+
+      // Player Paddle Collision
+      if (
+        ballX - ballSize < paddleWidth &&
+        ballY > playerY &&
+        ballY < playerY + paddleHeight
+      ) {
+        ballVX *= -1;
+      }
+
+      // AI Paddle Collision
+      if (
+        ballX + ballSize > canvas.width - paddleWidth &&
+        ballY > aiY &&
+        ballY < aiY + paddleHeight
+      ) {
+        ballVX *= -1;
+      }
+
+      // AI Movement
+      const aiCenter = aiY + paddleHeight / 2;
+      if (aiCenter < ballY) aiY += 3;
+      else aiY -= 3;
+
+      // Lose / Reset
+      if (ballX < 0 || ballX > canvas.width) {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+        ballVX *= -1;
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    document.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleY = canvas.height / rect.height;
+      playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
+    });
+
+    draw();
+  </script>
+</body>
+</html>

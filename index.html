@@ -2,151 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to Linux</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fun Linux Page</title>
   <style>
+    /* Basic Styles */
     body {
       margin: 0;
       height: 100vh;
-      background: radial-gradient(circle at center, #000000, #1a1a1a); /* Default gradient */
-      animation: bgPulse 10s infinite alternate;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: #00ffcc;
       font-family: 'Courier New', monospace;
-      transition: background-color 0.5s ease; /* Smooth transition */
+      background: #2a2a2a;
+      color: white;
+      transition: background-color 0.5s ease;
     }
 
+    /* Fun Text Effects */
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #00ffcc;
+      text-align: center;
+      animation: fadeIn 2s ease-out;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #00ffcc;
+      text-align: center;
+      max-width: 600px;
+      animation: fadeIn 2s ease-out;
+    }
+
+    /* Hover Effects */
+    button, select {
+      background-color: #00ffcc;
+      color: black;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      border-radius: 5px;
+    }
+
+    button:hover, select:hover {
+      background-color: #00bba0;
+      transform: scale(1.1);
+    }
+
+    /* Linux Logo Styling */
     img {
-      max-width: 300px;
-      height: auto;
-      filter: drop-shadow(0 0 15px #00ffcc);
+      max-width: 250px;
       transition: transform 0.3s ease;
+      filter: drop-shadow(0 0 15px #00ffcc);
     }
 
     img:hover {
-      transform: rotate(360deg) scale(1.1); /* Spins the logo */
-      transition: transform 1s;
+      transform: rotate(360deg) scale(1.2);
     }
 
-    .terminal {
-      margin-top: 20px;
-      font-size: 1.5rem;
-      animation: blink 1s step-start infinite;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 3s steps(30) 1s forwards, blink 0.7s step-end infinite;
+    /* Dark Mode Button */
+    #darkModeBtn {
+      margin-top: 30px;
     }
 
-    @keyframes typing {
-      to {
-        width: 100%;
-      }
+    /* Fun Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
-    @keyframes blink {
-      50% { opacity: 0.5; }
-    }
-
-    @keyframes bgPulse {
-      from { background-color: #000000; }
-      to { background-color: #111111; }
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #00ffcc;
-      color: black;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #00bba0;
-    }
-
-    select {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 1rem;
-      background-color: #333;
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
-      cursor: pointer;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     /* Dark Mode Styles */
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: radial-gradient(circle at center, #1a1a1a, #000000);
-        color: #ffffff;
-      }
-      button {
-        background-color: #00bba0;
-        color: #000;
-      }
-      select {
-        background-color: #666;
-        color: #fff;
-        border: 1px solid #00ffcc;
-      }
+    body.dark-mode {
+      background: #121212;
+      color: white;
+    }
+
+    body.dark-mode button, body.dark-mode select {
+      background-color: #00ffcc;
+      color: black;
     }
   </style>
 </head>
 <body>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo">
-  <p class="terminal" id="terminalText"></p>
-
+  <h1>Welcome to the Fun Linux Page!</h1>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo" id="linuxLogo">
+  
+  <p>Click the button to get a random fun Linux fact or change the background color!</p>
+  
+  <button id="factBtn">Get Linux Fun Fact</button>
   <button id="changeBgBtn">Change Background Color</button>
+  
+  <p id="fact"></p>
+
   <select id="colorSelect">
+    <option value="blue">Blue</option>
     <option value="red">Red</option>
     <option value="green">Green</option>
-    <option value="blue">Blue</option>
-    <option value="purple">Purple</option>
     <option value="yellow">Yellow</option>
+    <option value="purple">Purple</option>
     <option value="orange">Orange</option>
     <option value="black">Black</option>
   </select>
+  
+  <button id="darkModeBtn">Toggle Dark Mode</button>
 
   <script>
-    // Typing effect for terminal text
-    const terminalText = document.getElementById('terminalText');
-    const textToType = "Welcome to Linux";
-    let index = 0;
+    // Fun Linux Facts
+    const facts = [
+      "Linux was created by Linus Torvalds in 1991.",
+      "Linux is open-source, meaning anyone can modify and distribute it.",
+      "The Tux penguin is the official mascot of Linux.",
+      "There are over 300 distributions of Linux.",
+      "The first Linux kernel was just 10,000 lines of code."
+    ];
 
-    function typeText() {
-      if (index < textToType.length) {
-        terminalText.textContent += textToType[index++];
-        setTimeout(typeText, 150); // Speed of typing
-      }
-    }
-    typeText();
+    // Random Fun Fact Button
+    const factBtn = document.getElementById('factBtn');
+    const factDisplay = document.getElementById('fact');
 
-    // Change background color based on dropdown selection
+    factBtn.addEventListener('click', () => {
+      const randomFact = facts[Math.floor(Math.random() * facts.length)];
+      factDisplay.textContent = randomFact;
+    });
+
+    // Change Background Color
     const colorSelect = document.getElementById('colorSelect');
     colorSelect.addEventListener('change', (event) => {
       const selectedColor = event.target.value;
-
-      // Apply solid background color
       document.body.style.backgroundColor = selectedColor;
-
-      // Optional: Change gradient or solid color logic based on the selection
-      if (selectedColor === "black") {
-        document.body.style.background = "radial-gradient(circle at center, #000000, #1a1a1a)";
-      }
     });
 
-    // Button for changing background (Optional: add random color feature)
+    // Dark Mode Toggle
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    darkModeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+
+    // Change Background Color Button
     const changeBgBtn = document.getElementById('changeBgBtn');
     changeBgBtn.addEventListener('click', () => {
-      const colors = ['red', 'green', 'blue', 'purple', 'yellow', 'orange', 'black'];
+      const colors = ['blue', 'red', 'green', 'yellow', 'purple', 'orange', 'black'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       document.body.style.backgroundColor = randomColor;
+    });
+
+    // Fun Linux Logo Animation
+    const linuxLogo = document.getElementById('linuxLogo');
+    linuxLogo.addEventListener('click', () => {
+      linuxLogo.style.transform = "rotate(360deg)";
+      setTimeout(() => {
+        linuxLogo.style.transform = "rotate(0deg)";
+      }, 1000);
     });
   </script>
 </body>

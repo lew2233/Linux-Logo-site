@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Games Zone</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .game-area {
+      margin-top: 40px;
+    }
+
+    .click-btn {
+      padding: 20px 30px;
+      font-size: 1.5rem;
+      background: #00ffcc;
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .score {
+      font-size: 2rem;
+      margin-top: 20px;
+    }
+
+    .back-btn {
+      margin-top: 40px;
+      display: inline-block;
+      font-size: 1rem;
+      color: #00ffcc;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🕹️ Mini Game: Linux Clicker 🐧</h1>
+
+  <div class="game-area">
+    <button class="click-btn" onclick="increaseScore()">Click Me!</button>
+    <div class="score" id="scoreDisplay">Score: 0</div>
+  </div>
+
+  <div class="back-btn" onclick="window.location.href='index.html'">← Back to Webzone</div>
+
+  <script>
+    let score = 0;
+    function increaseScore() {
+      score++;
+      document.getElementById("scoreDisplay").textContent = "Score: " + score;
+    }
+  </script>
+</body>
+</html>

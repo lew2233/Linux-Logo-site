@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Spicy Linux Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate Linux Webzone</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      background-color: #1e1e1e;
+      background-color: #0f0f0f;
       color: #00ffcc;
       font-family: 'Courier New', monospace;
       overflow: hidden;
+      cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
     }
 
     #particles-js {
@@ -37,12 +38,17 @@
     h1 {
       font-size: 3rem;
       margin-bottom: 10px;
-      animation: glow 2s infinite alternate;
+      color: #00ffcc;
+      animation: glitch 1s infinite;
     }
 
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #00ffcc; }
-      to { text-shadow: 0 0 30px #00ffcc; }
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px #ff00c8; }
+      20% { text-shadow: -2px -2px #00fff7; }
+      40% { text-shadow: 2px -2px #ff00c8; }
+      60% { text-shadow: -2px 2px #00fff7; }
+      80% { text-shadow: 2px 2px #ff00c8; }
+      100% { text-shadow: 0 0 #00ffcc; }
     }
 
     img {
@@ -63,8 +69,18 @@
 
     .terminal {
       font-size: 1.3rem;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       height: 1.5rem;
+    }
+
+    input[type="text"] {
+      background: black;
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      padding: 8px;
+      font-size: 1rem;
+      width: 300px;
+      margin-top: 10px;
     }
 
     button, select {
@@ -90,39 +106,50 @@
       color: #ffffff;
       max-width: 600px;
     }
+
+    .secret {
+      display: none;
+      margin-top: 20px;
+      color: #ff00c8;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
   <div class="container">
-    <h1>🔥 Spicy Linux Page 🔥</h1>
+    <h1>🔥 Ultimate Linux Webzone 🔥</h1>
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" id="tux" alt="Tux Linux Logo">
 
     <div class="terminal" id="terminalText"></div>
-
+    <input type="text" id="commandInput" placeholder="Type a command like: uname -a" />
+    
     <button id="factBtn">Get Linux Fun Fact</button>
     <button id="changeBgBtn">Change Background Color</button>
     <select id="colorSelect">
-      <option value="black">Black</option>
-      <option value="blue">Blue</option>
-      <option value="purple">Purple</option>
-      <option value="green">Green</option>
-      <option value="orange">Orange</option>
+      <option value="#0f0f0f">Black</option>
+      <option value="#1e3a8a">Blue</option>
+      <option value="#4b0082">Purple</option>
+      <option value="#006400">Green</option>
+      <option value="#ff6600">Orange</option>
     </select>
     <button id="darkModeBtn">Toggle Dark Mode</button>
 
     <p id="fact"></p>
+    <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
   </div>
+
+  <audio id="pingSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
-    // Background Particles
+    // Particles
     particlesJS("particles-js", {
       particles: {
-        number: { value: 80, density: { enable: true, value_area: 800 } },
+        number: { value: 80 },
         color: { value: "#00ffcc" },
         shape: { type: "circle" },
-        opacity: { value: 0.3, random: true },
+        opacity: { value: 0.3 },
         size: { value: 3, random: true },
         move: { enable: true, speed: 1 }
       },
@@ -131,23 +158,21 @@
       }
     });
 
-    // Terminal Typing Effect
+    // Terminal text loop
     const terminalText = document.getElementById('terminalText');
     const messages = [
-      "Booting up Linux...",
-      "Running sudo fun --now",
-      "You are now root. 😎",
-      "Fetching penguin facts...",
-      "Linux is love. Linux is life."
+      "sudo ./webzone --spice",
+      "Fetching penguin magic...",
+      "Hacking the Gibson...",
+      "Welcome to the matrix.",
+      "Tux approves this message."
     ];
-    let messageIndex = 0;
-    let charIndex = 0;
+    let messageIndex = 0, charIndex = 0;
 
     function typeTerminal() {
       if (charIndex < messages[messageIndex].length) {
-        terminalText.textContent += messages[messageIndex].charAt(charIndex);
-        charIndex++;
-        setTimeout(typeTerminal, 100);
+        terminalText.textContent += messages[messageIndex].charAt(charIndex++);
+        setTimeout(typeTerminal, 70);
       } else {
         setTimeout(() => {
           terminalText.textContent = '';
@@ -159,44 +184,64 @@
     }
     typeTerminal();
 
-    // Linux Fun Facts
+    // Command input box
+    const commandInput = document.getElementById('commandInput');
+    commandInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const cmd = commandInput.value.toLowerCase();
+        if (cmd.includes('uname')) {
+          alert('Linux 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux');
+        } else if (cmd.includes('whoami')) {
+          alert('You are root. 😎');
+        } else {
+          alert(`Command not found: ${cmd}`);
+        }
+        commandInput.value = '';
+      }
+    });
+
+    // Fun Facts
     const facts = [
-      "Linux is the operating system behind Android!",
-      "Most of the internet runs on Linux servers.",
-      "The word 'Linux' is pronounced as 'Leen-uks' by Linus himself!",
-      "NASA uses Linux in their space missions!",
-      "Tux was created by Larry Ewing in 1996."
+      "Linux is the most popular OS for servers.",
+      "Android is powered by Linux.",
+      "Over 90% of supercomputers run Linux!",
+      "Tux was almost an eagle or a fox!",
+      "Linus originally named it 'Freax'."
     ];
-    const factBtn = document.getElementById('factBtn');
-    const factDisplay = document.getElementById('fact');
-    factBtn.addEventListener('click', () => {
+    document.getElementById('factBtn').onclick = () => {
       const fact = facts[Math.floor(Math.random() * facts.length)];
-      factDisplay.textContent = fact;
-    });
+      document.getElementById('fact').textContent = fact;
+    };
 
-    // Background Color Change
-    const colorSelect = document.getElementById('colorSelect');
-    colorSelect.addEventListener('change', e => {
+    // Background color
+    document.getElementById('colorSelect').onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
-    });
+    };
+    document.getElementById('changeBgBtn').onclick = () => {
+      const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
+      document.body.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    };
 
-    const changeBgBtn = document.getElementById('changeBgBtn');
-    changeBgBtn.addEventListener('click', () => {
-      const colors = ['#000000', '#2200ff', '#5f00a0', '#007744', '#ff6600'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      document.body.style.backgroundColor = randomColor;
-    });
-
-    // Dark Mode Toggle
-    const darkModeBtn = document.getElementById('darkModeBtn');
-    darkModeBtn.addEventListener('click', () => {
+    // Dark mode
+    document.getElementById('darkModeBtn').onclick = () => {
       document.body.classList.toggle('dark-mode');
-    });
+    };
 
-    // Easter Egg on Logo Click
+    // Penguin click easter egg
     const tux = document.getElementById('tux');
     tux.addEventListener('click', () => {
-      alert("🐧 You found the secret penguin! 🐧\nKeep on hacking, friend!");
+      document.getElementById('pingSound').play();
+      alert("🐧 Tux says: Stay chill, hacker.");
+    });
+
+    // Press L for secret
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'l') {
+        document.getElementById('easterEggMsg').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('easterEggMsg').style.display = 'none';
+        }, 3000);
+      }
     });
   </script>
 </body>

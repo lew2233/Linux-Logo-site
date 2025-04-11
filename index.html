@@ -68,13 +68,32 @@
     button:hover {
       background-color: #00bba0;
     }
+
+    select {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 1rem;
+      background-color: #333;
+      color: #00ffcc;
+      border: 1px solid #00ffcc;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo">
   <p class="terminal" id="terminalText"></p>
 
-  <button id="changeBgBtn">Change Background</button>
+  <button id="changeBgBtn">Change Background Color</button>
+  <select id="colorSelect">
+    <option value="red">Red</option>
+    <option value="green">Green</option>
+    <option value="blue">Blue</option>
+    <option value="purple">Purple</option>
+    <option value="yellow">Yellow</option>
+    <option value="orange">Orange</option>
+    <option value="black">Black</option>
+  </select>
 
   <script>
     // Typing effect for terminal text
@@ -90,11 +109,10 @@
     }
     typeText();
 
-    // Change background color when the button is clicked
-    const changeBgBtn = document.getElementById('changeBgBtn');
-    changeBgBtn.addEventListener('click', () => {
-      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-      document.body.style.background = randomColor;
+    // Change background color based on dropdown selection
+    const colorSelect = document.getElementById('colorSelect');
+    colorSelect.addEventListener('change', (event) => {
+      document.body.style.backgroundColor = event.target.value;
     });
   </script>
 </body>

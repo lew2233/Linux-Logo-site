@@ -96,30 +96,35 @@
   </select>
 
   <script>
-    // Typing effect for terminal text
-    const terminalText = document.getElementById('terminalText');
-    const textToType = "Welcome to Linux";
-    let index = 0;
+  // Typing effect for terminal text
+  const terminalText = document.getElementById('terminalText');
+  const textToType = "Welcome to Linux";
+  let index = 0;
 
-    function typeText() {
-      if (index < textToType.length) {
-        terminalText.textContent += textToType[index++];
-        setTimeout(typeText, 150); // Speed of typing
-      }
+  function typeText() {
+    if (index < textToType.length) {
+      terminalText.textContent += textToType[index++];
+      setTimeout(typeText, 150); // Speed of typing
     }
-    typeText();
+  }
+  typeText();
 
-    // Change background color based on dropdown selection
-    const colorSelect = document.getElementById('colorSelect');
-    colorSelect.addEventListener('change', (event) => {
-      const selectedColor = event.target.value;
+  // Change background color based on dropdown selection
+  const colorSelect = document.getElementById('colorSelect');
+  colorSelect.addEventListener('change', (event) => {
+    const selectedColor = event.target.value;
+    document.body.style.backgroundColor = selectedColor;
+  });
 
-      // Apply background color
-      if (selectedColor === 'red' || selectedColor === 'green' || selectedColor === 'blue' ||
-          selectedColor === 'purple' || selectedColor === 'yellow' || selectedColor === 'orange' || selectedColor === 'black') {
-        document.body.style.backgroundColor = selectedColor;
-      }
-    });
-  </script>
+  // Add functionality to the button
+  const changeBgBtn = document.getElementById('changeBgBtn');
+  changeBgBtn.addEventListener('click', () => {
+    // Get the selected value from the dropdown
+    const selectedColor = colorSelect.value;
+
+    // Apply the selected color as the background
+    document.body.style.backgroundColor = selectedColor;
+  });
+</script>
 </body>
 </html>

@@ -110,14 +110,15 @@
     typeText();
 
     // Change background color based on dropdown selection
-const colorSelect = document.getElementById('colorSelect');
-colorSelect.addEventListener('change', (event) => {
-  const selectedColor = event.target.value;
-  // Stop the background animation
-  document.body.style.animation = 'none';
-  // Apply solid color background
-  document.body.style.background = selectedColor;
-});
+    const colorSelect = document.getElementById('colorSelect');
+    colorSelect.addEventListener('change', (event) => {
+      const selectedColor = event.target.value;
+
+      // Apply background color
+      if (selectedColor === 'red' || selectedColor === 'green' || selectedColor === 'blue' ||
+          selectedColor === 'purple' || selectedColor === 'yellow' || selectedColor === 'orange' || selectedColor === 'black') {
+        document.body.style.backgroundColor = selectedColor;
+      }
     });
   </script>
 </body>

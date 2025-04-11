@@ -25,13 +25,24 @@
     }
 
     img:hover {
-      transform: scale(1.05);
+      transform: rotate(360deg) scale(1.1); /* Spins the logo */
+      transition: transform 1s;
     }
 
     .terminal {
       margin-top: 20px;
       font-size: 1.5rem;
       animation: blink 1s step-start infinite;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 3s steps(30) 1s forwards, blink 0.7s step-end infinite;
+    }
+
+    @keyframes typing {
+      to {
+        width: 100%;
+      }
     }
 
     @keyframes blink {
@@ -42,10 +53,49 @@
       from { background-color: #000000; }
       to { background-color: #111111; }
     }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #00ffcc;
+      color: black;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #00bba0;
+    }
   </style>
 </head>
 <body>
   <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" alt="Linux Logo">
-  <p class="terminal">Welcome to Linux</p>
+  <p class="terminal" id="terminalText"></p>
+
+  <button id="changeBgBtn">Change Background</button>
+
+  <script>
+    // Typing effect for terminal text
+    const terminalText = document.getElementById('terminalText');
+    const textToType = "Welcome to Linux";
+    let index = 0;
+
+    function typeText() {
+      if (index < textToType.length) {
+        terminalText.textContent += textToType[index++];
+        setTimeout(typeText, 150); // Speed of typing
+      }
+    }
+    typeText();
+
+    // Change background color when the button is clicked
+    const changeBgBtn = document.getElementById('changeBgBtn');
+    changeBgBtn.addEventListener('click', () => {
+      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+      document.body.style.background = randomColor;
+    });
+  </script>
 </body>
 </html>

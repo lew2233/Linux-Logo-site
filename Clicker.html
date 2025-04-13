@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>🐧 Linux Clicker</title>
   <style>
     :root {
@@ -31,15 +31,18 @@
       text-align: center;
       padding-top: 50px;
       transition: background 0.3s, color 0.3s;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     h1 {
-      font-size: 3rem;
+      font-size: 2.5rem;
       text-shadow: var(--text-shadow);
     }
 
     .score, .level, .shop, .prestige {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       margin: 20px 0;
     }
 
@@ -48,12 +51,13 @@
     }
 
     .tux {
-      width: 120px;
+      width: 150px;
       cursor: pointer;
       transition: transform 0.2s;
+      touch-action: manipulation;
     }
 
-    .tux:hover {
+    .tux:active {
       transform: scale(1.1);
     }
 
@@ -61,7 +65,7 @@
       margin-top: 40px;
       color: var(--fg);
       text-decoration: underline;
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: inline-block;
       margin-bottom: 50px;
@@ -75,7 +79,7 @@
     .btn {
       background: var(--button-bg);
       color: var(--bg);
-      padding: 10px 25px;
+      padding: 10px 20px;
       font-size: 1rem;
       border: none;
       border-radius: 10px;
@@ -83,9 +87,10 @@
       margin-top: 10px;
       transition: all 0.2s ease-in-out;
       box-shadow: 0 0 10px var(--button-bg);
+      touch-action: manipulation;
     }
 
-    .btn:hover {
+    .btn:active {
       transform: scale(1.05);
       background: var(--button-hover);
       box-shadow: 0 0 20px var(--fg), 0 0 30px var(--fg);
@@ -113,8 +118,9 @@
       border: 2px solid var(--fg);
       border-radius: 8px;
       padding: 5px 10px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .theme-toggle:hover {
@@ -172,7 +178,6 @@
         baseClickPower++;
         pointsPerClick = baseClickPower * (1 + prestigePoints);
         upgradeCost = Math.floor(upgradeCost * 1.75);
-
         updateUI();
       } else {
         alert("Not enough points!");
@@ -187,7 +192,6 @@
         upgradeCost = 10;
         pointsPerClick = baseClickPower * (1 + prestigePoints);
         prestigeCost = Math.floor(prestigeCost * 2);
-
         updateUI();
       } else {
         alert("Not enough points to prestige!");
@@ -209,10 +213,7 @@
       effect.style.left = `${x}px`;
       effect.style.top = `${y}px`;
       document.body.appendChild(effect);
-
-      setTimeout(() => {
-        effect.remove();
-      }, 1000);
+      setTimeout(() => effect.remove(), 1000);
     }
 
     function toggleTheme() {

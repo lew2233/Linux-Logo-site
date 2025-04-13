@@ -31,7 +31,6 @@
       text-align: center;
       padding-top: 50px;
       transition: background 0.3s, color 0.3s;
-      -webkit-user-select: none;
       user-select: none;
       touch-action: manipulation;
     }
@@ -127,6 +126,17 @@
       background: var(--fg);
       color: var(--bg);
     }
+
+    .skin-shop {
+      margin-top: 30px;
+    }
+
+    .skin-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -138,7 +148,7 @@
   <div class="level">Points Per Click: <span id="ppc">1</span></div>
   <div class="prestige">Prestige Points: <span id="prestige">0</span></div>
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" />
+  <img id="tuxImage" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" />
 
   <div class="shop">
     <p>Upgrade Click Power</p>
@@ -148,6 +158,16 @@
   <div class="prestige">
     <p>Reset for +1 Prestige Point (Cost: <span id="prestige-cost">100</span> pts)</p>
     <button class="btn" onclick="prestige()">Prestige</button>
+  </div>
+
+  <div class="skin-shop">
+    <h3>Penguin Skins</h3>
+    <div class="skin-list">
+      <button class="btn" onclick="buySkin('tux', 0)">Classic Tux (Free)</button>
+      <button class="btn" onclick="buySkin('blue', 50)">Blue Tux (50 pts)</button>
+      <button class="btn" onclick="buySkin('ninja', 100)">Ninja Tux (100 pts)</button>
+      <button class="btn" onclick="buySkin('rainbow', 150)">Rainbow Tux (150 pts)</button>
+    </div>
   </div>
 
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
@@ -165,6 +185,17 @@
     const prestigeEl = document.getElementById('prestige');
     const upgradeCostEl = document.getElementById('upgrade-cost');
     const prestigeCostEl = document.getElementById('prestige-cost');
+    const tuxImage = document.getElementById('tuxImage');
+
+    const skins = {
+      tux: "https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg",
+      blue: "https://upload.wikimedia.org/wikipedia/commons/4/45/Tux-blue.svg",
+      ninja: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Tux-Ninja.svg",
+      rainbow: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Rainbow-Tux.svg"
+    };
+
+    let ownedSkins = ['tux'];
+    let currentSkin = 'tux';
 
     function addPoints(e) {
       points += pointsPerClick;
@@ -220,7 +251,37 @@
       document.body.classList.toggle('light');
     }
 
-    updateUI();
+    function buySkin(skin, cost) {
+      if (ownedSkins.includes(skin)) {
+        setSkin(skin);
+        return;
+      }
+
+      if (points >= cost) {
+        points -= cost;
+        ownedSkins.push(skin);
+        setSkin(skin);
+        updateUI();
+      } else {
+        alert("Not enough points for this skin!");
+      }
+    }
+
+    function setSkin(skin) {
+      currentSkin = skin;
+      tuxImage.src = skins[skin];
+      localStorage.setItem('currentSkin', skin);
+      localStorage.setItem('ownedSkins', JSON.stringify(ownedSkins));
+    }
+
+    // Load saved skin
+    window.addEventListener('load', () => {
+      const savedSkin = localStorage.getItem('currentSkin');
+      const savedOwned = localStorage.getItem('ownedSkins');
+      if (savedOwned) ownedSkins = JSON.parse(savedOwned);
+      if (savedSkin && skins[savedSkin]) setSkin(savedSkin);
+      updateUI();
+    });
   </script>
 </body>
 </html>

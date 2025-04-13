@@ -5,47 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🐧 Linux Clicker</title>
   <style>
+    :root {
+      --bg: #000;
+      --fg: #00fff7;
+      --highlight: #ffeb3b;
+      --button-bg: #00fff7;
+      --button-hover: #00ccff;
+      --text-shadow: 0 0 10px var(--fg), 0 0 20px var(--fg);
+    }
+
+    body.light {
+      --bg: #fff;
+      --fg: #222;
+      --highlight: #ff5722;
+      --button-bg: #e0e0e0;
+      --button-hover: #cfcfcf;
+      --text-shadow: none;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #00fff7;
+      background: var(--bg);
+      color: var(--fg);
       font-family: 'Courier New', monospace;
       text-align: center;
       padding-top: 50px;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       font-size: 3rem;
-      text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7;
+      text-shadow: var(--text-shadow);
     }
 
-    .score {
-      font-size: 2rem;
-      margin: 20px 0;
-      color: #ffeb3b;
-    }
-
-    .click-btn {
-      padding: 20px 40px;
+    .score, .level, .shop, .prestige {
       font-size: 1.5rem;
-      background: #00fff7;
-      color: #000;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      box-shadow: 0 0 10px #00fff7;
+      margin: 20px 0;
     }
 
-    .click-btn:hover {
-      transform: scale(1.05);
-      background: #00ccff;
-      box-shadow: 0 0 20px #00fff7, 0 0 30px #00fff7;
+    .score span, .prestige span {
+      color: var(--highlight);
+    }
+
+    .tux {
+      width: 120px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .tux:hover {
+      transform: scale(1.1);
     }
 
     .back-link {
       margin-top: 40px;
-      color: #00fff7;
+      color: var(--fg);
       text-decoration: underline;
       font-size: 1.1rem;
       cursor: pointer;
@@ -55,35 +69,157 @@
 
     .back-link:hover {
       text-decoration: none;
-      color: #ffeb3b;
+      color: var(--highlight);
     }
 
-    .tux {
-      width: 80px;
-      margin-top: 20px;
+    .btn {
+      background: var(--button-bg);
+      color: var(--bg);
+      padding: 10px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 0 10px var(--button-bg);
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      background: var(--button-hover);
+      box-shadow: 0 0 20px var(--fg), 0 0 30px var(--fg);
+    }
+
+    .click-effect {
+      position: absolute;
+      font-size: 20px;
+      color: var(--highlight);
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      color: var(--fg);
+      border: 2px solid var(--fg);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      background: var(--fg);
+      color: var(--bg);
     }
   </style>
 </head>
 <body>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+
   <h1>🐧 Linux Clicker</h1>
 
-  <div class="score">
-    <p>Points: <span id="points">0</span></p>
+  <div class="score">Points: <span id="points">0</span></div>
+  <div class="level">Points Per Click: <span id="ppc">1</span></div>
+  <div class="prestige">Prestige Points: <span id="prestige">0</span></div>
+
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" />
+
+  <div class="shop">
+    <p>Upgrade Click Power</p>
+    <button class="btn" onclick="buyUpgrade()">Buy Upgrade (<span id="upgrade-cost">10</span> pts)</button>
   </div>
 
-  <button class="click-btn" onclick="addPoints()">Click Me!</button>
+  <div class="prestige">
+    <p>Reset for +1 Prestige Point (Cost: <span id="prestige-cost">100</span> pts)</p>
+    <button class="btn" onclick="prestige()">Prestige</button>
+  </div>
 
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" alt="Tux Penguin" class="tux" />
-
   <script>
     let points = 0;
+    let pointsPerClick = 1;
+    let baseClickPower = 1;
+    let upgradeCost = 10;
+    let prestigePoints = 0;
+    let prestigeCost = 100;
 
-    function addPoints() {
-      points++;
-      document.getElementById('points').textContent = points;
+    const pointEl = document.getElementById('points');
+    const ppcEl = document.getElementById('ppc');
+    const prestigeEl = document.getElementById('prestige');
+    const upgradeCostEl = document.getElementById('upgrade-cost');
+    const prestigeCostEl = document.getElementById('prestige-cost');
+
+    function addPoints(e) {
+      points += pointsPerClick;
+      pointEl.textContent = points;
+      showClickEffect(e.clientX, e.clientY, `+${pointsPerClick}`);
     }
+
+    function buyUpgrade() {
+      if (points >= upgradeCost) {
+        points -= upgradeCost;
+        baseClickPower++;
+        pointsPerClick = baseClickPower * (1 + prestigePoints);
+        upgradeCost = Math.floor(upgradeCost * 1.75);
+
+        updateUI();
+      } else {
+        alert("Not enough points!");
+      }
+    }
+
+    function prestige() {
+      if (points >= prestigeCost) {
+        prestigePoints++;
+        points = 0;
+        baseClickPower = 1;
+        upgradeCost = 10;
+        pointsPerClick = baseClickPower * (1 + prestigePoints);
+        prestigeCost = Math.floor(prestigeCost * 2);
+
+        updateUI();
+      } else {
+        alert("Not enough points to prestige!");
+      }
+    }
+
+    function updateUI() {
+      pointEl.textContent = points;
+      ppcEl.textContent = pointsPerClick;
+      prestigeEl.textContent = prestigePoints;
+      upgradeCostEl.textContent = upgradeCost;
+      prestigeCostEl.textContent = prestigeCost;
+    }
+
+    function showClickEffect(x, y, text) {
+      const effect = document.createElement('div');
+      effect.className = 'click-effect';
+      effect.textContent = text;
+      effect.style.left = `${x}px`;
+      effect.style.top = `${y}px`;
+      document.body.appendChild(effect);
+
+      setTimeout(() => {
+        effect.remove();
+      }, 1000);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+    }
+
+    updateUI();
   </script>
 </body>
 </html>

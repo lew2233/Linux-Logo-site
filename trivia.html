@@ -23,7 +23,7 @@
       margin-bottom: 20px;
     }
 
-    .question-box {
+    .question-box, .setup-box {
       max-width: 700px;
       width: 100%;
       background: #111;
@@ -31,30 +31,33 @@
       border-radius: 10px;
       box-shadow: 0 0 20px #00fff7;
       text-align: center;
-      animation: fadeIn 0.5s ease-in-out;
+      margin-bottom: 20px;
     }
 
-    .question {
-      font-size: 1.6rem;
-      margin-bottom: 25px;
+    select, button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
     }
 
     .answer {
       background: #00fff7;
       color: #000;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
       margin: 8px;
-      transition: transform 0.2s, background 0.2s;
     }
 
     .answer:hover {
       background: #00ccff;
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #00fff7;
+    }
+
+    .timer {
+      font-size: 1.1rem;
+      margin: 10px 0;
+      color: #ffeb3b;
     }
 
     .result {
@@ -69,7 +72,7 @@
     }
 
     .back-link, .play-again {
-      margin-top: 40px;
+      margin-top: 30px;
       font-size: 1.1rem;
       color: #00fff7;
       text-decoration: underline;
@@ -80,125 +83,152 @@
       color: #ffeb3b;
       text-decoration: none;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
   <h1>🧠 Terminal Trivia</h1>
-  <div class="score" id="score">Score: 0 / 0</div>
-  <div class="question-box" id="quiz-box">
+
+  <div class="setup-box" id="setup">
+    <label for="category">Choose a category:</label><br/>
+    <select id="category">
+      <option value="linux">Linux</option>
+      <option value="git">Git</option>
+      <option value="shell">Shell Scripting</option>
+    </select><br/><br/>
+
+    <label for="difficulty">Select difficulty:</label><br/>
+    <select id="difficulty">
+      <option value="easy">Easy (1pt)</option>
+      <option value="medium">Medium (2pt)</option>
+      <option value="hard">Hard (3pt)</option>
+    </select><br/><br/>
+
+    <button onclick="startQuiz()">▶ Start Quiz</button>
+  </div>
+
+  <div class="score" id="score" style="display:none;">Score: 0</div>
+  <div class="timer" id="timer" style="display:none;">⏱️ Time left: 15s</div>
+  <div class="question-box" id="quiz-box" style="display:none;">
     <div class="question" id="question">Loading...</div>
     <div id="answers"></div>
     <div class="result" id="result"></div>
   </div>
 
-  <div class="play-again" id="play-again" style="display:none;" onclick="restartQuiz()">🔁 Play Again</div>
+  <div class="play-again" id="play-again" style="display:none;" onclick="location.reload()">🔁 Play Again</div>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
   <script>
-    const questions = [
-      {
-        question: "Which command lists files in a directory?",
-        options: ["ls", "cd", "mkdir", "touch"],
-        answer: "ls"
+    const questionData = {
+      linux: {
+        easy: [
+          { question: "Which command lists files?", options: ["ls", "cd", "mkdir", "touch"], answer: "ls" },
+          { question: "Command to change directory?", options: ["pwd", "cd", "mv", "cp"], answer: "cd" }
+        ],
+        medium: [
+          { question: "File with user accounts?", options: ["/etc/passwd", "/home", "/bin", "/root"], answer: "/etc/passwd" }
+        ],
+        hard: [
+          { question: "Command to search file content?", options: ["find", "grep", "awk", "cut"], answer: "grep" }
+        ]
       },
-      {
-        question: "Which command is used to change directories?",
-        options: ["mv", "cd", "rm", "pwd"],
-        answer: "cd"
+      git: {
+        easy: [
+          { question: "Initialize Git repo?", options: ["git start", "git init", "git new", "git create"], answer: "git init" }
+        ],
+        medium: [
+          { question: "Stage changes?", options: ["git commit", "git push", "git add", "git init"], answer: "git add" }
+        ],
+        hard: [
+          { question: "Undo last commit but keep changes?", options: ["git reset --soft HEAD~1", "git revert", "git stash", "git clean"], answer: "git reset --soft HEAD~1" }
+        ]
       },
-      {
-        question: "What does 'sudo' stand for?",
-        options: ["Superuser Do", "System Update", "Software Upload", "Switch User"],
-        answer: "Superuser Do"
-      },
-      {
-        question: "What file contains user passwords in Linux?",
-        options: ["/etc/passwd", "/usr/bin", "/home/user", "/bin/bash"],
-        answer: "/etc/passwd"
-      },
-      {
-        question: "Which command gives you your current directory?",
-        options: ["pwd", "echo", "whereami", "locate"],
-        answer: "pwd"
+      shell: {
+        easy: [
+          { question: "What does 'echo' do?", options: ["Repeat loop", "Print text", "Delete file", "Exit script"], answer: "Print text" }
+        ],
+        medium: [
+          { question: "What does '&&' do in shell?", options: ["OR", "AND", "PIPE", "NOT"], answer: "AND" }
+        ],
+        hard: [
+          { question: "Best way to make script executable?", options: ["chmod +x", "run.sh", "exec bash", "launch"], answer: "chmod +x" }
+        ]
       }
-    ];
+    };
 
-    let current = 0;
-    let score = 0;
+    let questions = [], current = 0, score = 0, timer, timeLeft = 15, difficultyPoints = 1;
 
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
+    function startQuiz() {
+      const cat = document.getElementById("category").value;
+      const diff = document.getElementById("difficulty").value;
+
+      questions = [...questionData[cat][diff]];
+      difficultyPoints = diff === "easy" ? 1 : diff === "medium" ? 2 : 3;
+
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("quiz-box").style.display = "block";
+      document.getElementById("score").style.display = "block";
+      document.getElementById("timer").style.display = "block";
+
+      loadQuestion();
     }
 
     function loadQuestion() {
+      if (current >= questions.length) return endQuiz();
+
       const q = questions[current];
       document.getElementById("question").textContent = q.question;
+      document.getElementById("answers").innerHTML = "";
 
-      const answersDiv = document.getElementById("answers");
-      answersDiv.innerHTML = "";
-
-      shuffle(q.options).forEach(option => {
+      q.options.sort(() => Math.random() - 0.5).forEach(opt => {
         const btn = document.createElement("button");
         btn.className = "answer";
-        btn.textContent = option;
-        btn.onclick = () => checkAnswer(option);
-        answersDiv.appendChild(btn);
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt);
+        document.getElementById("answers").appendChild(btn);
       });
 
       document.getElementById("result").textContent = "";
-      updateScoreDisplay();
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = 15;
+      document.getElementById("timer").textContent = `⏱️ Time left: ${timeLeft}s`;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `⏱️ Time left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          checkAnswer(null);
+        }
+      }, 1000);
     }
 
     function checkAnswer(selected) {
+      clearInterval(timer);
       const correct = questions[current].answer;
       const resultDiv = document.getElementById("result");
 
       if (selected === correct) {
+        score += difficultyPoints;
         resultDiv.textContent = "✅ Correct!";
         resultDiv.style.color = "#00ff88";
-        score++;
       } else {
-        resultDiv.textContent = `❌ Incorrect! The correct answer was: ${correct}`;
+        resultDiv.textContent = `❌ Incorrect! Correct: ${correct}`;
         resultDiv.style.color = "#ff5252";
       }
 
-      setTimeout(() => {
-        current++;
-        if (current < questions.length) {
-          loadQuestion();
-        } else {
-          endQuiz();
-        }
-      }, 1500);
-    }
-
-    function updateScoreDisplay() {
-      document.getElementById("score").textContent = `Score: ${score} / ${questions.length}`;
+      document.getElementById("score").textContent = `Score: ${score}`;
+      current++;
+      setTimeout(loadQuestion, 1500);
     }
 
     function endQuiz() {
-      document.getElementById("quiz-box").innerHTML = `<h2>🎉 You've completed the trivia!</h2><p>Your score: ${score} / ${questions.length}</p>`;
+      document.getElementById("quiz-box").innerHTML = `<h2>🎉 Quiz Complete!</h2><p>Your final score: ${score}</p>`;
+      document.getElementById("timer").style.display = "none";
       document.getElementById("play-again").style.display = "block";
     }
-
-    function restartQuiz() {
-      current = 0;
-      score = 0;
-      document.getElementById("quiz-box").innerHTML = `
-        <div class="question" id="question"></div>
-        <div id="answers"></div>
-        <div class="result" id="result"></div>
-      `;
-      document.getElementById("play-again").style.display = "none";
-      loadQuestion();
-    }
-
-    loadQuestion();
   </script>
 </body>
 </html>

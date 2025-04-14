@@ -1,3 +1,14 @@
+Certainly! Here are a few improvements to enhance the functionality and user experience of your "Linux Pong" game:
+
+1. **Add a Pause Feature**: Allow users to pause and resume the game.
+2. **Improve AI Movement**: Make the AI movement smoother and more challenging.
+3. **Enhance Mobile Experience**: Improve touch controls for mobile users.
+4. **Add Sound Control**: Allow users to mute/unmute sounds.
+5. **Add Game Instructions**: Provide brief instructions on how to play the game.
+
+Here's the updated code with these improvements:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,6 +103,33 @@
       color: #ff00c8;
       border-color: #ff00c8;
     }
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .control-btn {
+      background: none;
+      border: 2px solid #00fff7;
+      color: #00fff7;
+      padding: 5px 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+
+    .control-btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
+    }
+
+    .instructions {
+      margin-top: 10px;
+      font-size: 1rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -111,6 +149,15 @@
   </div>
 
   <canvas id="pongCanvas"></canvas>
+
+  <div class="controls">
+    <button class="control-btn" onclick="togglePause()">Pause</button>
+    <button class="control-btn" onclick="toggleSound()">Mute</button>
+  </div>
+
+  <div class="instructions">
+    Move your paddle with the mouse or touch. First to 5 points wins!
+  </div>
 
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
@@ -133,6 +180,8 @@
     let aiSpeed = 2.5;
     let playerScore = 0, aiScore = 0;
     let isGameOver = false;
+    let isPaused = false;
+    let isMuted = false;
 
     const bounceSound = document.getElementById("bounce");
     const scoreSound = document.getElementById("score");
@@ -179,7 +228,7 @@
       isGameOver = true;
       document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
       document.getElementById("gameOverScreen").style.display = "flex";
-      gameoverSound.play();
+      if (!isMuted) gameoverSound.play();
     }
 
     function restartGame() {
@@ -192,8 +241,18 @@
       draw();
     }
 
-    function draw() {
-      if (isGameOver) return;
+    function togglePause() {
+      isPaused = !isPaused;
+      if (!isPaused) draw();
+    }
+
+    function toggleSound() {
+      isMuted = !isMuted;
+      document.querySelector(".control-btn:nth-child(2)").textContent = isMuted ? "Unmute" : "Mute";
+    }
+
+        function draw() {
+      if (isGameOver || isPaused) return;
 
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -207,7 +266,7 @@
 
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
-        bounceSound.play();
+        if (!isMuted) bounceSound.play();
       }
 
       // Player paddle
@@ -217,7 +276,7 @@
         ballY < playerY + paddleHeight
       ) {
         ballVX *= -1;
-        bounceSound.play();
+        if (!isMuted) bounceSound.play();
       }
 
       // AI paddle
@@ -227,7 +286,7 @@
         ballY < aiY + paddleHeight
       ) {
         ballVX *= -1;
-        bounceSound.play();
+        if (!isMuted) bounceSound.play();
       }
 
       // AI follows ball with random inaccuracy
@@ -240,13 +299,13 @@
       // Score
       if (ballX < 0) {
         aiScore++;
-        scoreSound.play();
+        if (!isMuted) scoreSound.play();
         updateScore();
         if (aiScore >= 5) return gameOver("AI");
         resetBall();
       } else if (ballX > canvas.width) {
         playerScore++;
-        scoreSound.play();
+        if (!isMuted) scoreSound.play();
         updateScore();
         if (playerScore >= 5) return gameOver("Player");
         resetBall();

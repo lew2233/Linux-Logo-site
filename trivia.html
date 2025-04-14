@@ -126,35 +126,70 @@
       linux: {
         easy: [
           { question: "Which command lists files?", options: ["ls", "cd", "mkdir", "touch"], answer: "ls" },
-          { question: "Command to change directory?", options: ["pwd", "cd", "mv", "cp"], answer: "cd" }
+          { question: "Command to change directory?", options: ["pwd", "cd", "mv", "cp"], answer: "cd" },
+          { question: "Which command creates a new directory?", options: ["mkdir", "rmdir", "ls", "touch"], answer: "mkdir" },
+          { question: "Command to remove a file?", options: ["rm", "del", "unlink", "delete"], answer: "rm" },
+          { question: "Which command shows your current directory?", options: ["pwd", "locate", "where", "ls"], answer: "pwd" }
         ],
         medium: [
-          { question: "File with user accounts?", options: ["/etc/passwd", "/home", "/bin", "/root"], answer: "/etc/passwd" }
+          { question: "What is the purpose of 'chmod'?", options: ["Change file permissions", "Change file ownership", "Change file name", "Create file"], answer: "Change file permissions" },
+          { question: "What command shows system information?", options: ["uname", "ls", "pwd", "echo"], answer: "uname" },
+          { question: "Which file contains user account details?", options: ["/etc/passwd", "/home/user", "/usr/bin", "/bin/bash"], answer: "/etc/passwd" },
+          { question: "What does 'grep' do?", options: ["Search text", "Show files", "Change directory", "Remove files"], answer: "Search text" },
+          { question: "What command allows you to see running processes?", options: ["ps", "ls", "top", "grep"], answer: "ps" }
         ],
         hard: [
-          { question: "Command to search file content?", options: ["find", "grep", "awk", "cut"], answer: "grep" }
+          { question: "How to change file ownership in Linux?", options: ["chown", "chmod", "chgrp", "chfile"], answer: "chown" },
+          { question: "What is the command to view disk usage?", options: ["df", "du", "ls", "top"], answer: "df" },
+          { question: "Which command shows the kernel version?", options: ["uname -r", "top", "dmesg", "cat /proc/version"], answer: "uname -r" },
+          { question: "How to list all processes in Linux?", options: ["ps aux", "top -a", "ls -a", "ps -l"], answer: "ps aux" },
+          { question: "Which command changes file attributes?", options: ["chattr", "chmod", "chown", "lsattr"], answer: "chattr" }
         ]
       },
       git: {
         easy: [
-          { question: "Initialize Git repo?", options: ["git start", "git init", "git new", "git create"], answer: "git init" }
+          { question: "How do you initialize a Git repository?", options: ["git start", "git create", "git init", "git open"], answer: "git init" },
+          { question: "Command to add all changes to the staging area?", options: ["git add .", "git push", "git commit", "git stage"], answer: "git add ." },
+          { question: "Which command creates a branch?", options: ["git branch", "git create", "git checkout", "git merge"], answer: "git branch" },
+          { question: "Which command shows the current status?", options: ["git status", "git log", "git diff", "git show"], answer: "git status" },
+          { question: "Command to commit changes?", options: ["git commit -m 'message'", "git push", "git add", "git log"], answer: "git commit -m 'message'" }
         ],
         medium: [
-          { question: "Stage changes?", options: ["git commit", "git push", "git add", "git init"], answer: "git add" }
+          { question: "How do you merge a branch?", options: ["git merge", "git push", "git checkout", "git add"], answer: "git merge" },
+          { question: "What command shows commit history?", options: ["git log", "git status", "git show", "git diff"], answer: "git log" },
+          { question: "Command to delete a local branch?", options: ["git branch -d", "git remove", "git delete", "git branch -r"], answer: "git branch -d" },
+          { question: "How do you clone a repository?", options: ["git clone", "git copy", "git fetch", "git pull"], answer: "git clone" },
+          { question: "How to view changes between commits?", options: ["git diff", "git status", "git merge", "git log"], answer: "git diff" }
         ],
         hard: [
-          { question: "Undo last commit but keep changes?", options: ["git reset --soft HEAD~1", "git revert", "git stash", "git clean"], answer: "git reset --soft HEAD~1" }
+          { question: "Command to remove a file from Git?", options: ["git rm", "git delete", "git remove", "git clean"], answer: "git rm" },
+          { question: "How to revert the last commit in Git?", options: ["git revert", "git reset", "git undo", "git commit --amend"], answer: "git revert" },
+          { question: "What does 'git stash' do?", options: ["Save uncommitted changes", "Push changes to remote", "Show commit history", "Create a branch"], answer: "Save uncommitted changes" },
+          { question: "Command to apply stashed changes?", options: ["git stash apply", "git stash pop", "git apply", "git commit"], answer: "git stash apply" },
+          { question: "How do you rebase a branch?", options: ["git rebase", "git merge", "git pull", "git rebase -i"], answer: "git rebase" }
         ]
       },
       shell: {
         easy: [
-          { question: "What does 'echo' do?", options: ["Repeat loop", "Print text", "Delete file", "Exit script"], answer: "Print text" }
+          { question: "What does 'echo' do?", options: ["Repeat loop", "Print text", "Delete file", "Exit script"], answer: "Print text" },
+          { question: "Which command is used to display system information?", options: ["hostname", "sysinfo", "uname", "systemctl"], answer: "uname" },
+          { question: "What does '&&' do in shell?", options: ["AND", "OR", "PIPE", "NOT"], answer: "AND" },
+          { question: "Command to see all files in a directory?", options: ["ls", "cat", "pwd", "rm"], answer: "ls" },
+          { question: "What command is used to change directory?", options: ["cd", "mv", "pwd", "ls"], answer: "cd" }
         ],
         medium: [
-          { question: "What does '&&' do in shell?", options: ["OR", "AND", "PIPE", "NOT"], answer: "AND" }
+          { question: "How to redirect output to a file?", options: ["command > file.txt", "command >> file.txt", "command 2> file.txt", "all of the above"], answer: "all of the above" },
+          { question: "What is the 'tail' command used for?", options: ["View the end of a file", "View the beginning of a file", "View file permissions", "Display file size"], answer: "View the end of a file" },
+          { question: "How to see processes in the background?", options: ["bg", "fg", "jobs", "ps"], answer: "bg" },
+          { question: "What is the 'grep' command used for?", options: ["Search text", "View files", "Display process", "Kill process"], answer: "Search text" },
+          { question: "Command to find files by name?", options: ["find", "locate", "search", "grep"], answer: "find" }
         ],
         hard: [
-          { question: "Best way to make script executable?", options: ["chmod +x", "run.sh", "exec bash", "launch"], answer: "chmod +x" }
+          { question: "How to give execute permission to a file?", options: ["chmod +x", "chown +x", "chmod 777", "chmod 555"], answer: "chmod +x" },
+          { question: "Which command changes file attributes?", options: ["chattr", "chmod", "chown", "lsattr"], answer: "chattr" },
+          { question: "What is the 'awk' command used for?", options: ["Text processing", "Display file content", "Compress files", "Move files"], answer: "Text processing" },
+          { question: "What command displays file inode information?", options: ["ls -i", "stat", "ls -l", "file"], answer: "ls -i" },
+          { question: "How to create a symbolic link?", options: ["ln -s", "link", "ln", "symlink"], answer: "ln -s" }
         ]
       }
     };

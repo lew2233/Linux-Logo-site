@@ -23,7 +23,7 @@
       margin-bottom: 20px;
     }
 
-    .question-box, .setup-box {
+    .question-box, .setup-box, .password-challenge {
       max-width: 700px;
       width: 100%;
       background: #111;
@@ -34,7 +34,7 @@
       margin-bottom: 20px;
     }
 
-    select, button {
+    select, button, input {
       padding: 10px 20px;
       margin: 10px;
       font-family: inherit;
@@ -54,15 +54,10 @@
       background: #00ccff;
     }
 
-    .timer {
+    .timer, .result {
       font-size: 1.1rem;
       margin: 10px 0;
       color: #ffeb3b;
-    }
-
-    .result {
-      font-size: 1.2rem;
-      margin-top: 20px;
     }
 
     .score {
@@ -114,6 +109,15 @@
     <div class="result" id="result"></div>
   </div>
 
+  <div class="password-challenge" id="password-challenge" style="display:none;">
+    <h2>🔒 Password Challenge!</h2>
+    <p>Enter the correct Linux command to hack the system and unlock the bonus.</p>
+    <input type="text" id="command-input" placeholder="Enter command here" />
+    <button onclick="checkPasswordCommand()">Submit</button>
+    <div id="challenge-result" class="result"></div>
+    <div id="challenge-timer" class="timer">⏱️ Time left: 30s</div>
+  </div>
+
   <div class="play-again" id="play-again" style="display:none;" onclick="location.reload()">🔁 Play Again</div>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
@@ -156,6 +160,7 @@
     };
 
     let questions = [], current = 0, score = 0, timer, timeLeft = 15, difficultyPoints = 1;
+    const passwordCommand = "ls";  // This could be dynamic or a set of commands
 
     function startQuiz() {
       const cat = document.getElementById("category").value;
@@ -227,7 +232,32 @@
     function endQuiz() {
       document.getElementById("quiz-box").innerHTML = `<h2>🎉 Quiz Complete!</h2><p>Your final score: ${score}</p>`;
       document.getElementById("timer").style.display = "none";
-      document.getElementById("play-again").style.display = "block";
+      document.getElementById("password-challenge").style.display = "block";
+      startPasswordChallenge();
+    }
+
+    function startPasswordChallenge() {
+      let challengeTimer = 30;
+      document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimer}s`;
+
+      const challengeInterval = setInterval(() => {
+        challengeTimer--;
+        document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimer}s`;
+        if (challengeTimer <= 0) {
+          clearInterval(challengeInterval);
+          document.getElementById("challenge-result").textContent = "❌ Time's up! You failed to hack the system.";
+        }
+      }, 1000);
+    }
+
+    function checkPasswordCommand() {
+      const userCommand = document.getElementById("command-input").value.trim();
+      if (userCommand === passwordCommand) {
+        document.getElementById("challenge-result").textContent = "✅ Correct command! You successfully hacked the system!";
+        score += 10; // Bonus points
+      } else {
+        document.getElementById("challenge-result").textContent = "❌ Incorrect command. Try again!";
+      }
     }
   </script>
 </body>

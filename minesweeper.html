@@ -95,7 +95,7 @@
   <h1>Retro Minesweeper</h1>
   <div id="board" class="board"></div>
   <button onclick="startGame()">Start New Game</button>
-  <button onclick="window.location.href='minigames.html'">Back to Arcade</button>
+  <button onclick="window.location.href='minigames.html'">Back to Mini Games</button>
   <div id="status" class="status"></div>
 
   <script>
@@ -195,23 +195,25 @@
         row.forEach((cell, colIndex) => {
           const cellEl = document.createElement("div");
           cellEl.classList.add("cell");
+
           if (cell.revealed) {
             cellEl.classList.add("revealed");
+
             if (cell.isMine) {
               cellEl.classList.add("mined");
-              cellEl.textContent = "💣"; // Show bomb if it's a mine
+              cellEl.textContent = "💣"; // Display bomb when clicked
             } else if (cell.adjacentMines > 0) {
-              cellEl.textContent = cell.adjacentMines; // Show the number of adjacent mines
+              cellEl.textContent = cell.adjacentMines; // Show adjacent mine count
             }
           } else if (cell.flagged) {
             cellEl.classList.add("flagged");
-            cellEl.textContent = "🚩"; // Show flag if cell is flagged
+            cellEl.textContent = "🚩"; // Display flag when flagged
           }
 
-          // Attach event listeners
+          // Add event listeners for click (left click for reveal, right click for flag)
           cellEl.onclick = () => revealCell(rowIndex, colIndex);
           cellEl.oncontextmenu = (e) => {
-            e.preventDefault(); // Prevent right-click menu
+            e.preventDefault(); // Prevent default right-click menu
             flagCell(rowIndex, colIndex);
           };
 

@@ -26,6 +26,7 @@
       grid-template-rows: repeat(10, 40px);
       gap: 2px;
       margin: 20px;
+      transition: all 0.5s ease;
     }
 
     .cell {
@@ -33,6 +34,7 @@
       height: 40px;
       background: #111;
       border: 1px solid #00fff720;
+      transition: background 0.3s;
     }
 
     .wall {
@@ -42,6 +44,7 @@
     .player {
       background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg');
       background-size: cover;
+      transition: transform 0.3s ease;
     }
 
     .goal {
@@ -66,13 +69,22 @@
       box-shadow: 0 0 20px #00fff7;
       transform: scale(1.05);
     }
+
+    .status {
+      margin: 20px;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
   <h1>🧩 Tux Maze</h1>
+  <div id="status" class="status">
+    <p>Time: <span id="timer">60</span>s</p>
+    <p>Moves: <span id="moveCount">0</span></p>
+  </div>
   <div id="maze" class="maze"></div>
   <button class="game-btn" onclick="nextLevel()">Next Level</button>
-  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+  <div class="back-link" onclick="window.location.href='index.html'">← Back to Arcade</div>
 
   <script>
     const levels = [
@@ -116,8 +128,12 @@
 
     let currentLevel = 0;
     let playerPos = { x: 1, y: 1 };
-
+    let moveCount = 0;
+    let timerInterval;
+    let timeRemaining = 60;  // 60 seconds per level
     const mazeEl = document.getElementById('maze');
+    const moveCountEl = document.getElementById('moveCount');
+    const timerEl = document.getElementById('timer');
 
     function drawMaze(levelData) {
       mazeEl.innerHTML = '';
@@ -169,6 +185,8 @@
 
           // Update player position
           playerPos = { x: newX, y: newY };
+          moveCount++;
+          moveCountEl.textContent = moveCount;
           drawMaze(levels[currentLevel]);
         }
       }
@@ -181,6 +199,23 @@
         currentLevel = 0;
       }
       drawMaze(levels[currentLevel]);
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeRemaining = 60;
+      timerEl.textContent = timeRemaining;
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        timerEl.textContent = timeRemaining;
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          alert('⏱️ Time is up! Game Over!');
+          currentLevel = 0;
+          drawMaze(levels[currentLevel]);
+        }
+      }, 1000);
     }
 
     document.addEventListener('keydown', e => {
@@ -193,6 +228,7 @@
     });
 
     drawMaze(levels[currentLevel]);
+    resetTimer();
   </script>
 </body>
 </html>

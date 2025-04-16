@@ -2,63 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Minesweeper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retro Minesweeper</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #00fff7;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #282828;
-      color: white;
       flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
+
     h1 {
-      margin-bottom: 20px;
+      margin: 20px;
+      font-size: 3rem;
+      text-shadow: 0 0 10px #00fff7;
     }
+
     .board {
       display: grid;
-      grid-template-columns: repeat(8, 40px);
-      grid-template-rows: repeat(8, 40px);
-      gap: 2px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(10, 50px);
+      grid-template-rows: repeat(10, 50px);
+      gap: 3px;
+      margin: 20px;
     }
+
     .cell {
-      width: 40px;
-      height: 40px;
-      background-color: #444;
+      width: 50px;
+      height: 50px;
+      background-color: #222;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 16px;
+      font-size: 20px;
+      color: #00fff7;
       cursor: pointer;
-      color: white;
-      border-radius: 5px;
-      box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+      border: 2px solid #00fff7;
+      transition: 0.2s;
+      box-shadow: 0 0 5px rgba(0, 255, 247, 0.7);
     }
+
     .cell.revealed {
-      background-color: #ddd;
-      color: black;
+      background-color: #444;
+      color: #000;
     }
+
     .cell.flagged {
-      background-color: #ff9900;
+      background-color: #ffcc00;
+      color: #000;
     }
-    .game-over {
-      color: red;
-      font-size: 24px;
+
+    .cell.mined {
+      background-color: red;
+      color: #fff;
+    }
+
+    .game-over, .win {
+      font-size: 1.5rem;
+      color: #ff0000;
       margin-top: 20px;
     }
-    .win {
-      color: green;
-      font-size: 24px;
-      margin-top: 20px;
-    }
+
     button {
-      padding: 10px 20px;
-      font-size: 1rem;
+      padding: 15px 30px;
+      font-size: 1.5rem;
       margin: 10px;
       border: none;
       border-radius: 10px;
@@ -68,24 +78,30 @@
       box-shadow: 0 0 10px #00fff7;
       transition: 0.2s;
     }
+
     button:hover {
       background: #00ccff;
       box-shadow: 0 0 20px #00fff7;
       transform: scale(1.05);
     }
+
+    .status {
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Minesweeper</h1>
+  <h1>Retro Minesweeper</h1>
   <div id="board" class="board"></div>
   <button onclick="startGame()">Start New Game</button>
-  <button onclick="window.location.href='minigames.html'">Back to Arcade</button>
-  <div id="status"></div>
+  <button onclick="window.location.href='minigames.html'">Back to Mini Games</button>
+  <div id="status" class="status"></div>
 
   <script>
-    const rows = 8;
-    const cols = 8;
-    const mineCount = 10;
+    const rows = 10;
+    const cols = 10;
+    const mineCount = 15;
 
     let board = [];
     let gameOver = false;
@@ -182,6 +198,7 @@
           if (cell.revealed) {
             cellEl.classList.add("revealed");
             if (cell.isMine) {
+              cellEl.classList.add("mined");
               cellEl.textContent = "💣";
             } else if (cell.adjacentMines > 0) {
               cellEl.textContent = cell.adjacentMines;

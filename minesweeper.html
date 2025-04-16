@@ -95,7 +95,7 @@
   <h1>Retro Minesweeper</h1>
   <div id="board" class="board"></div>
   <button onclick="startGame()">Start New Game</button>
-  <button onclick="window.location.href='minigames.html'">Back to Mini Games</button>
+  <button onclick="window.location.href='minigames.html'">Back to Arcade</button>
   <div id="status" class="status"></div>
 
   <script>
@@ -199,20 +199,22 @@
             cellEl.classList.add("revealed");
             if (cell.isMine) {
               cellEl.classList.add("mined");
-              cellEl.textContent = "💣";
+              cellEl.textContent = "💣"; // Show bomb if it's a mine
             } else if (cell.adjacentMines > 0) {
-              cellEl.textContent = cell.adjacentMines;
+              cellEl.textContent = cell.adjacentMines; // Show the number of adjacent mines
             }
-          }
-          if (cell.flagged) {
+          } else if (cell.flagged) {
             cellEl.classList.add("flagged");
-            cellEl.textContent = "🚩";
+            cellEl.textContent = "🚩"; // Show flag if cell is flagged
           }
+
+          // Attach event listeners
           cellEl.onclick = () => revealCell(rowIndex, colIndex);
           cellEl.oncontextmenu = (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Prevent right-click menu
             flagCell(rowIndex, colIndex);
           };
+
           boardEl.appendChild(cellEl);
         });
       });

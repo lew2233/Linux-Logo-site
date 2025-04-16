@@ -2,119 +2,194 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tux Maze Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tux Maze</title>
   <style>
     body {
       margin: 0;
-      font-family: monospace;
+      font-family: 'Courier New', monospace;
       background: #000;
       color: #00fff7;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
 
     h1 {
+      margin: 20px;
       text-shadow: 0 0 10px #00fff7;
     }
 
-    #maze {
+    .maze {
       display: grid;
       grid-template-columns: repeat(10, 40px);
       grid-template-rows: repeat(10, 40px);
       gap: 2px;
-      margin-top: 20px;
+      margin: 20px;
     }
 
     .cell {
       width: 40px;
       height: 40px;
-      box-sizing: border-box;
+      background: #111;
+      border: 1px solid #00fff720;
     }
 
     .wall {
-      background-color: #00fff7;
-    }
-
-    .path {
-      background-color: #111;
+      background: #00fff7;
     }
 
     .player {
-      background-image: url("https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg");
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg');
       background-size: cover;
     }
 
     .goal {
-      background-color: lime;
+      background: #00ff00;
+    }
+
+    .game-btn, .back-link {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #00fff7;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00fff7;
+      transition: 0.2s;
+    }
+
+    .game-btn:hover, .back-link:hover {
+      background: #00ccff;
+      box-shadow: 0 0 20px #00fff7;
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
   <h1>🧩 Tux Maze</h1>
-  <div id="maze"></div>
+  <div id="maze" class="maze"></div>
+  <button class="game-btn" onclick="nextLevel()">Next Level</button>
+  <div class="back-link" onclick="window.location.href='index.html'">← Back to Arcade</div>
+
   <script>
-    const mazeLayout = [
-      "##########",
-      "#........#",
-      "#.######.#",
-      "#.#....#.#",
-      "#.#.##.#.#",
-      "#...##...#",
-      "###.##.###",
-      "#........#",
-      "#.######.#",
-      "##########"
+    const levels = [
+      [
+        "##########",
+        "#        #",
+        "# ###### #",
+        "# #    # #",
+        "# # ## # #",
+        "# # ## # #",
+        "# #    # #",
+        "# ###### #",
+        "#        #",
+        "########G#"
+      ],
+      [
+        "##########",
+        "#     #  #",
+        "# ### # ##",
+        "# #   #  #",
+        "# # #####G",
+        "# #      #",
+        "# ###### #",
+        "#        #",
+        "###### # #",
+        "P       ##"
+      ],
+      [
+        "##########",
+        "#P       #",
+        "##### # ##",
+        "#     #  #",
+        "# ### ####",
+        "#   #    #",
+        "### # ## #",
+        "#     ## #",
+        "# ####   #",
+        "#G########"
+      ]
     ];
 
-    const maze = document.getElementById("maze");
-    let playerPos = { x: 1, y: 1 };
-    const goalPos = { x: 8, y: 8 };
+    let currentLevel = 0;
+    let playerPos = { x: 0, y: 0 };
 
-    function drawMaze() {
-      maze.innerHTML = "";
-      for (let y = 0; y < mazeLayout.length; y++) {
-        for (let x = 0; x < mazeLayout[y].length; x++) {
-          const cell = document.createElement("div");
-          cell.classList.add("cell");
+    const mazeEl = document.getElementById('maze');
 
-          if (x === playerPos.x && y === playerPos.y) {
-            cell.classList.add("player");
-          } else if (x === goalPos.x && y === goalPos.y) {
-            cell.classList.add("goal");
-          } else {
-            cell.classList.add(mazeLayout[y][x] === "#" ? "wall" : "path");
+    function drawMaze(levelData) {
+      mazeEl.innerHTML = '';
+      mazeEl.style.gridTemplateColumns = `repeat(${levelData[0].length}, 40px)`;
+      mazeEl.style.gridTemplateRows = `repeat(${levelData.length}, 40px)`;
+
+      for (let y = 0; y < levelData.length; y++) {
+        for (let x = 0; x < levelData[y].length; x++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          const char = levelData[y][x];
+          if (char === '#') {
+            cell.classList.add('wall');
+          } else if (char === 'P') {
+            cell.classList.add('player');
+            playerPos = { x, y };
+          } else if (char === 'G') {
+            cell.classList.add('goal');
           }
-
-          maze.appendChild(cell);
+          mazeEl.appendChild(cell);
         }
       }
     }
 
     function movePlayer(dx, dy) {
+      const level = levels[currentLevel];
       const newX = playerPos.x + dx;
       const newY = playerPos.y + dy;
-
-      if (mazeLayout[newY][newX] === ".") {
-        playerPos = { x: newX, y: newY };
-        drawMaze();
-        if (newX === goalPos.x && newY === goalPos.y) {
-          setTimeout(() => alert("🎉 You reached the goal!"), 100);
+      if (
+        newY >= 0 &&
+        newY < level.length &&
+        newX >= 0 &&
+        newX < level[0].length
+      ) {
+        const targetCell = level[newY][newX];
+        if (targetCell !== '#') {
+          if (targetCell === 'G') {
+            alert('🎉 Level Complete!');
+            nextLevel();
+            return;
+          }
+          // Replace old position
+          level[playerPos.y] =
+            level[playerPos.y].substring(0, playerPos.x) + ' ' + level[playerPos.y].substring(playerPos.x + 1);
+          // Move player
+          level[newY] =
+            level[newY].substring(0, newX) + 'P' + level[newY].substring(newX + 1);
+          playerPos = { x: newX, y: newY };
+          drawMaze(level);
         }
       }
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowUp") movePlayer(0, -1);
-      if (e.key === "ArrowDown") movePlayer(0, 1);
-      if (e.key === "ArrowLeft") movePlayer(-1, 0);
-      if (e.key === "ArrowRight") movePlayer(1, 0);
+    function nextLevel() {
+      currentLevel++;
+      if (currentLevel >= levels.length) {
+        alert('🏁 You beat all the levels!');
+        currentLevel = 0;
+      }
+      drawMaze(levels[currentLevel]);
+    }
+
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowUp': movePlayer(0, -1); break;
+        case 'ArrowDown': movePlayer(0, 1); break;
+        case 'ArrowLeft': movePlayer(-1, 0); break;
+        case 'ArrowRight': movePlayer(1, 0); break;
+      }
     });
 
-    drawMaze();
+    drawMaze(levels[currentLevel]);
   </script>
 </body>
 </html>

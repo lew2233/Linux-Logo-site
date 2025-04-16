@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Tux Maze</title>
   <style>
     body {
@@ -242,17 +243,22 @@
     }
 
     document.addEventListener('keydown', e => {
-      switch (e.key) {
-        case 'ArrowUp': movePlayer(0, -1); break;
-        case 'ArrowDown': movePlayer(0, 1); break;
-        case 'ArrowLeft': movePlayer(-1, 0); break;
-        case 'ArrowRight': movePlayer(1, 0); break;
-      }
-    });
+  switch (e.key) {
+    case 'ArrowUp':
+    case 'ArrowDown':
+    case 'ArrowLeft':
+    case 'ArrowRight':
+      e.preventDefault(); // Stop the page from scrolling
+      break;
+  }
 
-    // Swipe Support
-    let touchStartX = 0;
-    let touchStartY = 0;
+  switch (e.key) {
+    case 'ArrowUp': movePlayer(0, -1); break;
+    case 'ArrowDown': movePlayer(0, 1); break;
+    case 'ArrowLeft': movePlayer(-1, 0); break;
+    case 'ArrowRight': movePlayer(1, 0); break;
+  }
+}
 
     document.addEventListener('touchstart', e => {
       touchStartX = e.touches[0].clientX;
@@ -275,6 +281,10 @@
       }
     }, false);
 
+      document.body.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+  
     drawMaze(levels[currentLevel]);
     resetTimer();
   </script>

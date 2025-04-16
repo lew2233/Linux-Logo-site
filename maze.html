@@ -18,14 +18,39 @@
     }
 
     h1 {
-      margin: 20px;
+      margin: 20px 0 10px;
       text-shadow: 0 0 10px #00fff7;
+    }
+
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      padding: 10px;
+    }
+
+    .back-link {
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: #00fff7;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00fff7;
+      transition: 0.2s;
+    }
+
+    .back-link:hover {
+      background: #00ccff;
+      box-shadow: 0 0 20px #00fff7;
+      transform: scale(1.05);
     }
 
     .maze {
       display: grid;
       gap: 2px;
-      margin: 20px;
+      margin: 10px;
       transition: all 0.5s ease;
     }
 
@@ -57,7 +82,7 @@
       100% { transform: scale(1); }
     }
 
-    .game-btn, .back-link {
+    .game-btn {
       padding: 10px 20px;
       font-size: 1rem;
       margin: 10px;
@@ -70,14 +95,14 @@
       transition: 0.2s;
     }
 
-    .game-btn:hover, .back-link:hover {
+    .game-btn:hover {
       background: #00ccff;
       box-shadow: 0 0 20px #00fff7;
       transform: scale(1.05);
     }
 
     .status {
-      margin: 20px;
+      margin: 10px;
       font-size: 1.2rem;
     }
 
@@ -85,7 +110,7 @@
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       color: #00ff88;
       font-size: 2rem;
       justify-content: center;
@@ -95,15 +120,17 @@
     }
 
     @media (max-width: 600px) {
-      .maze { transform: scale(0.9); }
+      .maze { transform: scale(0.85); }
     }
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <button class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</button>
+  </div>
   <h1>🧩 Tux Maze</h1>
   <div id="status" class="status">
-    <p>Time: <span id="timer">60</span>s</p>
-    <p>Moves: <span id="moveCount">0</span></p>
+    <p>Time: <span id="timer">60</span>s | Moves: <span id="moveCount">0</span></p>
   </div>
   <div id="maze" class="maze"></div>
 
@@ -117,7 +144,6 @@
   </div>
 
   <button class="game-btn" onclick="nextLevel()">Next Level</button>
-  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
   <div id="win-screen" class="status" style="display:none;flex;">
     <h2>🏆 You beat all the levels!</h2>
@@ -136,7 +162,7 @@
         "# #    # #",
         "# ###### #",
         "#        #",
-        "########G#",
+        "########G#"
       ],
       [
         "##G#######",
@@ -161,6 +187,21 @@
         "#     ## #",
         "# ####   #",
         "#G########"
+      ],
+      [ // New Complex Maze
+        "##############",
+        "#P   #     #G#",
+        "# # ### # # ##",
+        "# #   # # #  #",
+        "### # # ### ##",
+        "#   # #     ##",
+        "## ### #######",
+        "#     #      #",
+        "# ### # #### #",
+        "# #   #    # #",
+        "# # ###### # #",
+        "#          # #",
+        "##############"
       ]
     ];
 
@@ -224,10 +265,12 @@
       clearInterval(timerInterval);
       currentLevel++;
       if (currentLevel >= levels.length) {
-        document.getElementById('win-screen').style.display = 'flex';
+        winScreen.style.display = 'flex';
         return;
       }
       drawMaze(levels[currentLevel]);
+      moveCount = 0;
+      moveCountEl.textContent = moveCount;
       resetTimer();
       if (isWin) playVictorySound();
     }

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minesweeper</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #282828;
+      color: white;
+      flex-direction: column;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 40px);
+      grid-template-rows: repeat(8, 40px);
+      gap: 2px;
+      margin-bottom: 20px;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      background-color: #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+      border-radius: 5px;
+      box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+    .cell.revealed {
+      background-color: #ddd;
+      color: black;
+    }
+    .cell.flagged {
+      background-color: #ff9900;
+    }
+    .game-over {
+      color: red;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    .win {
+      color: green;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #00fff7;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00fff7;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #00ccff;
+      box-shadow: 0 0 20px #00fff7;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Minesweeper</h1>
+  <div id="board" class="board"></div>
+  <button onclick="startGame()">Start New Game</button>
+  <button onclick="window.location.href='minigames.html'">Back to Arcade</button>
+  <div id="status"></div>
+
+  <script>
+    const rows = 8;
+    const cols = 8;
+    const mineCount = 10;
+
+    let board = [];
+    let gameOver = false;
+    let revealedCount = 0;
+    let flaggedCount = 0;
+
+    function createBoard() {
+      board = [];
+      for (let row = 0; row < rows; row++) {
+        const rowArr = [];
+        for (let col = 0; col < cols; col++) {
+          rowArr.push({
+            isMine: false,
+            revealed: false,
+            flagged: false,
+            adjacentMines: 0
+          });
+        }
+        board.push(rowArr);
+      }
+    }
+
+    function placeMines() {
+      let placedMines = 0;
+      while (placedMines < mineCount) {
+        const row = Math.floor(Math.random() * rows);
+        const col = Math.floor(Math.random() * cols);
+        if (!board[row][col].isMine) {
+          board[row][col].isMine = true;
+          placedMines++;
+        }
+      }
+    }
+
+    function calculateAdjacentMines() {
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (board[row][col].isMine) continue;
+          let adjacentMines = 0;
+          for (let r = row - 1; r <= row + 1; r++) {
+            for (let c = col - 1; c <= col + 1; c++) {
+              if (r >= 0 && r < rows && c >= 0 && c < cols && board[r][c].isMine) {
+                adjacentMines++;
+              }
+            }
+          }
+          board[row][col].adjacentMines = adjacentMines;
+        }
+      }
+    }
+
+    function revealCell(row, col) {
+      if (gameOver || board[row][col].revealed || board[row][col].flagged) return;
+      board[row][col].revealed = true;
+      revealedCount++;
+
+      if (board[row][col].isMine) {
+        gameOver = true;
+        displayGameOver();
+        return;
+      }
+
+      if (board[row][col].adjacentMines === 0) {
+        for (let r = row - 1; r <= row + 1; r++) {
+          for (let c = col - 1; c <= col + 1; c++) {
+            if (r >= 0 && r < rows && c >= 0 && c < cols) {
+              revealCell(r, c);
+            }
+          }
+        }
+      }
+
+      if (revealedCount === rows * cols - mineCount) {
+        gameOver = true;
+        displayWin();
+      }
+      renderBoard();
+    }
+
+    function flagCell(row, col) {
+      if (gameOver || board[row][col].revealed) return;
+      board[row][col].flagged = !board[row][col].flagged;
+      flaggedCount = board.flat().filter(cell => cell.flagged).length;
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
+      board.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          const cellEl = document.createElement("div");
+          cellEl.classList.add("cell");
+          if (cell.revealed) {
+            cellEl.classList.add("revealed");
+            if (cell.isMine) {
+              cellEl.textContent = "💣";
+            } else if (cell.adjacentMines > 0) {
+              cellEl.textContent = cell.adjacentMines;
+            }
+          }
+          if (cell.flagged) {
+            cellEl.classList.add("flagged");
+            cellEl.textContent = "🚩";
+          }
+          cellEl.onclick = () => revealCell(rowIndex, colIndex);
+          cellEl.oncontextmenu = (e) => {
+            e.preventDefault();
+            flagCell(rowIndex, colIndex);
+          };
+          boardEl.appendChild(cellEl);
+        });
+      });
+    }
+
+    function displayGameOver() {
+      const statusEl = document.getElementById("status");
+      statusEl.innerHTML = `<p class="game-over">Game Over! 💥</p>`;
+    }
+
+    function displayWin() {
+      const statusEl = document.getElementById("status");
+      statusEl.innerHTML = `<p class="win">You Win! 🎉</p>`;
+    }
+
+    function startGame() {
+      createBoard();
+      placeMines();
+      calculateAdjacentMines();
+      gameOver = false;
+      revealedCount = 0;
+      flaggedCount = 0;
+      renderBoard();
+      const statusEl = document.getElementById("status");
+      statusEl.innerHTML = "";
+    }
+
+    startGame();
+  </script>
+</body>
+</html>

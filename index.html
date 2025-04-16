@@ -244,6 +244,7 @@
           'cd': 'Changed directory (not really)',
           'neofetch': 'Tux OS v1.0 - Mem: 16GB - Kernel: Epic',
           'ps': 'PID TTY TIME CMD\n1234 pts/0 00:00:01 bash\n5678 pts/0 00:00:00 node',
+          'sudo': 'You really think you have permissions to edit this. LOL',
         };
         const found = Object.keys(responses).find(k => cmd.includes(k));
         alert(found ? responses[found] : `Command not found: ${cmd}`);

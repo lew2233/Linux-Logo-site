@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tux Maze Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background: #000;
+      color: #00fff7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      text-shadow: 0 0 10px #00fff7;
+    }
+
+    #maze {
+      display: grid;
+      grid-template-columns: repeat(10, 40px);
+      grid-template-rows: repeat(10, 40px);
+      gap: 2px;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 40px;
+      height: 40px;
+      box-sizing: border-box;
+    }
+
+    .wall {
+      background-color: #00fff7;
+    }
+
+    .path {
+      background-color: #111;
+    }
+
+    .player {
+      background-image: url("https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg");
+      background-size: cover;
+    }
+
+    .goal {
+      background-color: lime;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧩 Tux Maze</h1>
+  <div id="maze"></div>
+  <script>
+    const mazeLayout = [
+      "##########",
+      "#........#",
+      "#.######.#",
+      "#.#....#.#",
+      "#.#.##.#.#",
+      "#...##...#",
+      "###.##.###",
+      "#........#",
+      "#.######.#",
+      "##########"
+    ];
+
+    const maze = document.getElementById("maze");
+    let playerPos = { x: 1, y: 1 };
+    const goalPos = { x: 8, y: 8 };
+
+    function drawMaze() {
+      maze.innerHTML = "";
+      for (let y = 0; y < mazeLayout.length; y++) {
+        for (let x = 0; x < mazeLayout[y].length; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+
+          if (x === playerPos.x && y === playerPos.y) {
+            cell.classList.add("player");
+          } else if (x === goalPos.x && y === goalPos.y) {
+            cell.classList.add("goal");
+          } else {
+            cell.classList.add(mazeLayout[y][x] === "#" ? "wall" : "path");
+          }
+
+          maze.appendChild(cell);
+        }
+      }
+    }
+
+    function movePlayer(dx, dy) {
+      const newX = playerPos.x + dx;
+      const newY = playerPos.y + dy;
+
+      if (mazeLayout[newY][newX] === ".") {
+        playerPos = { x: newX, y: newY };
+        drawMaze();
+        if (newX === goalPos.x && newY === goalPos.y) {
+          setTimeout(() => alert("🎉 You reached the goal!"), 100);
+        }
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") movePlayer(0, -1);
+      if (e.key === "ArrowDown") movePlayer(0, 1);
+      if (e.key === "ArrowLeft") movePlayer(-1, 0);
+      if (e.key === "ArrowRight") movePlayer(1, 0);
+    });
+
+    drawMaze();
+  </script>
+</body>
+</html>

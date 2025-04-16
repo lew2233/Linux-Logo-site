@@ -78,7 +78,7 @@
     const levels = [
       [
         "##########",
-        "# p       #",
+        "#p       #",
         "# ###### #",
         "# #    # #",
         "# # ## # #",
@@ -89,11 +89,11 @@
         "########G#"
       ],
       [
-        "##########",
+        "##G#######",
         "#     #  #",
         "# ### # ##",
         "# #   #  #",
-        "# # #####G",
+        "# # ######",
         "# #      #",
         "# ###### #",
         "#        #",
@@ -159,14 +159,17 @@
             nextLevel();
             return;
           }
-          // Replace old position
-          level[playerPos.y] =
-            level[playerPos.y].substring(0, playerPos.x) + ' ' + level[playerPos.y].substring(playerPos.x + 1);
-          // Move player
-          level[newY] =
-            level[newY].substring(0, newX) + 'P' + level[newY].substring(newX + 1);
+
+          // Update the player position in the level
+          const newLevel = level.map(row => row.split(''));
+          newLevel[playerPos.y][playerPos.x] = ' ';
+          newLevel[newY][newX] = 'P';
+
+          levels[currentLevel] = newLevel.map(row => row.join(''));
+
+          // Update player position
           playerPos = { x: newX, y: newY };
-          drawMaze(level);
+          drawMaze(levels[currentLevel]);
         }
       }
     }

@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Tux Maze</title>
   <style>
     body {
@@ -14,6 +13,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      touch-action: none;
+      overflow: hidden;
     }
 
     h1 {
@@ -23,8 +24,6 @@
 
     .maze {
       display: grid;
-      grid-template-columns: repeat(10, 40px);
-      grid-template-rows: repeat(10, 40px);
       gap: 2px;
       margin: 20px;
       transition: all 0.5s ease;
@@ -45,11 +44,17 @@
     .player {
       background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg');
       background-size: cover;
-      transition: transform 0.3s ease;
+      animation: bounce 0.2s;
     }
 
     .goal {
       background: #00ff00;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
     }
 
     .game-btn, .back-link {
@@ -76,16 +81,21 @@
       font-size: 1.2rem;
     }
 
-    @media (max-width: 600px) {
-      .game-btn {
-        padding: 10px 15px;
-        font-size: 1.2rem;
-        margin: 5px;
-      }
+    #win-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: #00ff88;
+      font-size: 2rem;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 999;
+    }
 
-      .maze {
-        transform: scale(0.9);
-      }
+    @media (max-width: 600px) {
+      .maze { transform: scale(0.9); }
     }
   </style>
 </head>
@@ -97,11 +107,8 @@
   </div>
   <div id="maze" class="maze"></div>
 
-  <!-- Touch Controls -->
-  <div style="display: flex; flex-direction: column; align-items: center; margin: 20px;">
-    <div>
-      <button class="game-btn" onclick="movePlayer(0, -1)">↑</button>
-    </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <div><button class="game-btn" onclick="movePlayer(0, -1)">↑</button></div>
     <div>
       <button class="game-btn" onclick="movePlayer(-1, 0)">←</button>
       <button class="game-btn" onclick="movePlayer(0, 1)">↓</button>
@@ -111,6 +118,11 @@
 
   <button class="game-btn" onclick="nextLevel()">Next Level</button>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+
+  <div id="win-screen" class="status" style="display:none;flex;">
+    <h2>🏆 You beat all the levels!</h2>
+    <button class="game-btn" onclick="restartGame()">Restart</button>
+  </div>
 
   <script>
     const levels = [
@@ -155,11 +167,13 @@
     let currentLevel = 0;
     let playerPos = { x: 1, y: 1 };
     let moveCount = 0;
-    let timerInterval;
     let timeRemaining = 60;
+    let timerInterval;
+    let touchStartX, touchStartY;
     const mazeEl = document.getElementById('maze');
     const moveCountEl = document.getElementById('moveCount');
     const timerEl = document.getElementById('timer');
+    const winScreen = document.getElementById('win-screen');
 
     function drawMaze(levelData) {
       mazeEl.innerHTML = '';
@@ -171,14 +185,11 @@
           const cell = document.createElement('div');
           cell.classList.add('cell');
           const char = levelData[y][x];
-          if (char === '#') {
-            cell.classList.add('wall');
-          } else if (char === 'P') {
+          if (char === '#') cell.classList.add('wall');
+          else if (char === 'P') {
             cell.classList.add('player');
             playerPos = { x, y };
-          } else if (char === 'G') {
-            cell.classList.add('goal');
-          }
+          } else if (char === 'G') cell.classList.add('goal');
           mazeEl.appendChild(cell);
         }
       }
@@ -188,40 +199,43 @@
       const level = levels[currentLevel];
       const newX = playerPos.x + dx;
       const newY = playerPos.y + dy;
-      if (
-        newY >= 0 &&
-        newY < level.length &&
-        newX >= 0 &&
-        newX < level[0].length
-      ) {
-        const targetCell = level[newY][newX];
-        if (targetCell !== '#') {
-          if (targetCell === 'G') {
-            alert('🎉 Level Complete!');
-            nextLevel();
+
+      if (newY >= 0 && newY < level.length && newX >= 0 && newX < level[0].length) {
+        const target = level[newY][newX];
+        if (target !== '#') {
+          if (target === 'G') {
+            nextLevel(true);
             return;
           }
-
-          const newLevel = level.map(row => row.split(''));
-          newLevel[playerPos.y][playerPos.x] = ' ';
-          newLevel[newY][newX] = 'P';
-
-          levels[currentLevel] = newLevel.map(row => row.join(''));
-
+          const updated = level.map(row => row.split(''));
+          updated[playerPos.y][playerPos.x] = ' ';
+          updated[newY][newX] = 'P';
+          levels[currentLevel] = updated.map(row => row.join(''));
           playerPos = { x: newX, y: newY };
           moveCount++;
           moveCountEl.textContent = moveCount;
           drawMaze(levels[currentLevel]);
+          playMoveSound();
         }
       }
     }
 
-    function nextLevel() {
+    function nextLevel(isWin) {
+      clearInterval(timerInterval);
       currentLevel++;
       if (currentLevel >= levels.length) {
-        alert('🏁 You beat all the levels!');
-        currentLevel = 0;
+        document.getElementById('win-screen').style.display = 'flex';
+        return;
       }
+      drawMaze(levels[currentLevel]);
+      resetTimer();
+      if (isWin) playVictorySound();
+    }
+
+    function restartGame() {
+      winScreen.style.display = 'none';
+      currentLevel = 0;
+      moveCount = 0;
       drawMaze(levels[currentLevel]);
       resetTimer();
     }
@@ -235,56 +249,49 @@
         timerEl.textContent = timeRemaining;
         if (timeRemaining <= 0) {
           clearInterval(timerInterval);
-          alert('⏱️ Time is up! Game Over!');
-          currentLevel = 0;
-          drawMaze(levels[currentLevel]);
+          alert('⏱️ Time is up!');
+          restartGame();
         }
       }, 1000);
     }
 
     document.addEventListener('keydown', e => {
-  switch (e.key) {
-    case 'ArrowUp':
-    case 'ArrowDown':
-    case 'ArrowLeft':
-    case 'ArrowRight':
-      e.preventDefault(); // Stop the page from scrolling
-      break;
-  }
-
-  switch (e.key) {
-    case 'ArrowUp': movePlayer(0, -1); break;
-    case 'ArrowDown': movePlayer(0, 1); break;
-    case 'ArrowLeft': movePlayer(-1, 0); break;
-    case 'ArrowRight': movePlayer(1, 0); break;
-  }
-}
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        if (e.key === 'ArrowUp') movePlayer(0, -1);
+        if (e.key === 'ArrowDown') movePlayer(0, 1);
+        if (e.key === 'ArrowLeft') movePlayer(-1, 0);
+        if (e.key === 'ArrowRight') movePlayer(1, 0);
+      }
+    });
 
     document.addEventListener('touchstart', e => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-    }, false);
+    }, { passive: true });
 
     document.addEventListener('touchend', e => {
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-
-      const dx = touchEndX - touchStartX;
-      const dy = touchEndY - touchStartY;
-
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
       if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 20) movePlayer(1, 0);     // Swipe right
-        else if (dx < -20) movePlayer(-1, 0); // Swipe left
+        if (dx > 30) movePlayer(1, 0);
+        else if (dx < -30) movePlayer(-1, 0);
       } else {
-        if (dy > 20) movePlayer(0, 1);     // Swipe down
-        else if (dy < -20) movePlayer(0, -1); // Swipe up
+        if (dy > 30) movePlayer(0, 1);
+        else if (dy < -30) movePlayer(0, -1);
       }
-    }, false);
+    }, { passive: true });
 
-      document.body.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-  }, { passive: false });
-  
+    document.body.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+    function playMoveSound() {
+      new Audio('https://actions.google.com/sounds/v1/cartoon/pop.ogg').play();
+    }
+
+    function playVictorySound() {
+      new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg').play();
+    }
+
     drawMaze(levels[currentLevel]);
     resetTimer();
   </script>

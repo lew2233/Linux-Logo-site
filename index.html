@@ -29,14 +29,11 @@
     }
 
     #particles-js {
-    position: fixed;
-    top: 0; /* ensure it starts at top */
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1; /* Make sure it's always behind everything */
-  }
-
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
 
     .container {
       z-index: 1;
@@ -142,6 +139,26 @@
       h1 { font-size: 1.8rem; }
       input[type="text"], button, select { width: 90%; font-size: 1rem; }
     }
+
+    .dark-mode-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      background-color: #444;
+      border-radius: 30px;
+      padding: 5px 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .dark-mode-toggle .penguin {
+      width: 30px;
+      height: 30px;
+      transition: transform 0.5s ease;
+    }
+
+    .dark-mode-toggle.light .penguin {
+      transform: rotateY(180deg);
+    }
   </style>
 </head>
 <body>
@@ -163,7 +180,12 @@
       <option value="#006400">Green</option>
       <option value="#ff6600">Orange</option>
     </select>
-    <button id="darkModeBtn">Toggle Dark Mode</button>
+
+    <!-- Penguin Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeBtn">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
+      <span>Toggle Dark Mode</span>
+    </div>
 
     <p id="fact"></p>
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
@@ -173,34 +195,30 @@
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
-    // Apply user preferences
     window.onload = () => {
-    const savedBg = localStorage.getItem('bgColor');
-    const savedDark = localStorage.getItem('darkMode');
+      const savedBg = localStorage.getItem('bgColor');
+      const savedDark = localStorage.getItem('darkMode');
 
-      // Always start in dark mode unless user chose light mode
-    if (savedDark === 'false') {
-    document.body.classList.add('light');
-    } else {
-    document.body.classList.remove('light');
-    localStorage.setItem('darkMode', 'true');
-    }
+      if (savedBg) document.body.style.backgroundColor = savedBg;
+      if (savedDark === 'false') {
+        document.body.classList.add('light');
+        document.getElementById('darkModeBtn').classList.add('light');
+      } else {
+        document.body.classList.remove('light');
+      }
+    };
 
-    if (savedBg) {
-    document.body.style.backgroundColor = savedBg;
-    }
-  };
-
-
-    // Dark mode toggle
     const darkBtn = document.getElementById('darkModeBtn');
     darkBtn.onclick = () => {
+      const penguinIcon = document.getElementById('penguinIcon');
+      const isLightMode = document.body.classList.contains('light');
+
       document.body.classList.toggle('light');
-      const isDark = !document.body.classList.contains('light');
+      darkBtn.classList.toggle('light');
+      const isDark = !isLightMode;
       localStorage.setItem('darkMode', isDark);
     };
 
-    // Particles
     particlesJS("particles-js", {
       particles: {
         number: { value: 80 },
@@ -215,7 +233,6 @@
       }
     });
 
-    // Terminal typing
     const terminalText = document.getElementById('terminalText');
     const messages = [
       "sudo ./webzone --spice",
@@ -240,7 +257,6 @@
     }
     typeTerminal();
 
-    // Commands
     const commandInput = document.getElementById('commandInput');
     commandInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') {
@@ -260,7 +276,6 @@
       }
     });
 
-    // Fun facts
     const facts = [
       "Linux is the most popular OS for servers.",
       "Android is powered by Linux.",
@@ -278,7 +293,6 @@
       }, 300);
     };
 
-    // Background color
     const bgSelect = document.getElementById('colorSelect');
     bgSelect.onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
@@ -292,7 +306,6 @@
       localStorage.setItem('bgColor', randomColor);
     };
 
-    // Penguin
     const tux = document.getElementById('tux');
     let tuxClicks = 0;
     tux.addEventListener('click', () => {
@@ -306,7 +319,6 @@
       }
     });
 
-    // Easter egg
     document.addEventListener('keydown', (e) => {
       if (e.key.toLowerCase() === 'l') {
         const msg = document.getElementById('easterEggMsg');

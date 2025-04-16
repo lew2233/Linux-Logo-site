@@ -6,17 +6,17 @@
   <title>Ultimate Linux Webzone</title>
   <style>
     html, body {
-     margin: 0;
-     padding: 0;
-     min-height: 100%;
-     background-color: #0f0f0f;
-     color: #00ffcc;
-     font-family: 'Courier New', monospace;
-     overflow-x: hidden;
-     overflow-y: auto;
-     scroll-behavior: smooth;
-     cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
-  }
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: #0f0f0f;
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
 
     #particles-js {
       position: fixed;
@@ -26,19 +26,18 @@
     }
 
     .container {
-    z-index: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-top: 80px;
-    padding-bottom: 60px;
-    text-align: center;
-  }
+      z-index: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 60px;
+      text-align: center;
+    }
 
     h1 {
-      font-size: 3rem;
+      font-size: 2.5rem;
       margin-bottom: 10px;
       color: #00ffcc;
       animation: glitch 1s infinite;
@@ -54,7 +53,7 @@
     }
 
     img {
-      width: 200px;
+      width: 180px;
       margin: 20px 0;
       cursor: pointer;
       transition: transform 0.3s ease;
@@ -73,6 +72,16 @@
       font-size: 1.3rem;
       margin-bottom: 10px;
       height: 1.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .blinker {
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
     input[type="text"] {
@@ -107,6 +116,7 @@
       font-size: 1.1rem;
       color: #ffffff;
       max-width: 600px;
+      transition: opacity 0.5s ease;
     }
 
     .secret {
@@ -114,6 +124,11 @@
       margin-top: 20px;
       color: #ff00c8;
       font-size: 1.2rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      input[type="text"], button, select { width: 90%; font-size: 1rem; }
     }
   </style>
 </head>
@@ -123,11 +138,11 @@
     <h1>🔥 Ultimate Linux Webzone 🔥</h1>
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" id="tux" alt="Tux Linux Logo">
 
-    <div class="terminal" id="terminalText"></div>
+    <div class="terminal"><span id="terminalText"></span><span class="blinker">|</span></div>
     <input type="text" id="commandInput" placeholder="Type a command like: uname -a" />
     
     <button id="factBtn">Get Linux Fun Fact</button>
-    <button id="changeBgBtn">Change Background Color</button>
+    <button id="changeBgBtn">Change Background</button>
     <button onclick="window.location.href='https://lew2233.github.io/Linux-Logo-site/minigames.html'">🎮 Mini Games</button>
     <select id="colorSelect">
       <option value="#0f0f0f">Black</option>
@@ -161,7 +176,7 @@
       }
     });
 
-    // Terminal text loop
+    // Terminal typing
     const terminalText = document.getElementById('terminalText');
     const messages = [
       "sudo ./webzone --spice",
@@ -170,40 +185,42 @@
       "Welcome to the matrix.",
       "Tux approves this message."
     ];
-    let messageIndex = 0, charIndex = 0;
-
+    let msgIndex = 0, charIndex = 0;
     function typeTerminal() {
-      if (charIndex < messages[messageIndex].length) {
-        terminalText.textContent += messages[messageIndex].charAt(charIndex++);
+      if (charIndex < messages[msgIndex].length) {
+        terminalText.textContent += messages[msgIndex].charAt(charIndex++);
         setTimeout(typeTerminal, 70);
       } else {
         setTimeout(() => {
           terminalText.textContent = '';
           charIndex = 0;
-          messageIndex = (messageIndex + 1) % messages.length;
+          msgIndex = (msgIndex + 1) % messages.length;
           typeTerminal();
         }, 2000);
       }
     }
     typeTerminal();
 
-    // Command input box
+    // Command responses
     const commandInput = document.getElementById('commandInput');
     commandInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         const cmd = commandInput.value.toLowerCase();
-        if (cmd.includes('uname')) {
-          alert('Linux 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux');
-        } else if (cmd.includes('whoami')) {
-          alert('You are root. 😎');
-        } else {
-          alert(`Command not found: ${cmd}`);
-        }
+        const responses = {
+          'uname': 'Linux 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux',
+          'whoami': 'You are root. 😎',
+          'ls': 'Documents  Downloads  Music  Pictures  Videos',
+          'cd': 'Changed directory (not really)',
+          'neofetch': 'Tux OS v1.0 - Mem: 16GB - Kernel: Epic',
+          'ps': 'PID TTY TIME CMD\n1234 pts/0 00:00:01 bash\n5678 pts/0 00:00:00 node',
+        };
+        const found = Object.keys(responses).find(k => cmd.includes(k));
+        alert(found ? responses[found] : `Command not found: ${cmd}`);
         commandInput.value = '';
       }
     });
 
-    // Fun Facts
+    // Fun facts
     const facts = [
       "Linux is the most popular OS for servers.",
       "Android is powered by Linux.",
@@ -213,37 +230,73 @@
     ];
     document.getElementById('factBtn').onclick = () => {
       const fact = facts[Math.floor(Math.random() * facts.length)];
-      document.getElementById('fact').textContent = fact;
+      const factEl = document.getElementById('fact');
+      factEl.style.opacity = 0;
+      setTimeout(() => {
+        factEl.textContent = fact;
+        factEl.style.opacity = 1;
+      }, 300);
     };
 
     // Background color
-    document.getElementById('colorSelect').onchange = (e) => {
+    const bgSelect = document.getElementById('colorSelect');
+    bgSelect.onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
+      localStorage.setItem('bgColor', e.target.value);
     };
+
     document.getElementById('changeBgBtn').onclick = () => {
       const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
-      document.body.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      document.body.style.backgroundColor = randomColor;
+      localStorage.setItem('bgColor', randomColor);
     };
 
     // Dark mode
-    document.getElementById('darkModeBtn').onclick = () => {
-      document.body.classList.toggle('dark-mode');
+    const darkBtn = document.getElementById('darkModeBtn');
+    darkBtn.onclick = () => {
+      const isDark = document.body.style.backgroundColor !== 'rgb(255, 255, 255)';
+      if (isDark) {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#000000';
+      } else {
+        document.body.style.backgroundColor = '#0f0f0f';
+        document.body.style.color = '#00ffcc';
+      }
+      localStorage.setItem('darkMode', !isDark);
     };
 
-    // Penguin click easter egg
+    // Load saved preferences
+    window.onload = () => {
+      const savedBg = localStorage.getItem('bgColor');
+      if (savedBg) document.body.style.backgroundColor = savedBg;
+      const dark = localStorage.getItem('darkMode') === 'true';
+      if (!dark) {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#000000';
+      }
+    };
+
+    // Penguin easter egg
     const tux = document.getElementById('tux');
+    let tuxClicks = 0;
     tux.addEventListener('click', () => {
       document.getElementById('pingSound').play();
-      alert("🐧 Tux says: Stay chill, hacker.");
+      tuxClicks++;
+      if (tuxClicks >= 4) {
+        alert("🐧 You found the hidden penguin party!");
+        tuxClicks = 0;
+      } else {
+        alert("🐧 Tux says: Stay chill, hacker.");
+      }
     });
 
-    // Press L for secret
+    // Press L for easter egg
     document.addEventListener('keydown', (e) => {
       if (e.key.toLowerCase() === 'l') {
-        document.getElementById('easterEggMsg').style.display = 'block';
-        setTimeout(() => {
-          document.getElementById('easterEggMsg').style.display = 'none';
-        }, 3000);
+        const msg = document.getElementById('easterEggMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
       }
     });
   </script>

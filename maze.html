@@ -74,6 +74,18 @@
       margin: 20px;
       font-size: 1.2rem;
     }
+
+    @media (max-width: 600px) {
+      .game-btn {
+        padding: 10px 15px;
+        font-size: 1.2rem;
+        margin: 5px;
+      }
+
+      .maze {
+        transform: scale(0.9);
+      }
+    }
   </style>
 </head>
 <body>
@@ -83,6 +95,19 @@
     <p>Moves: <span id="moveCount">0</span></p>
   </div>
   <div id="maze" class="maze"></div>
+
+  <!-- Touch Controls -->
+  <div style="display: flex; flex-direction: column; align-items: center; margin: 20px;">
+    <div>
+      <button class="game-btn" onclick="movePlayer(0, -1)">↑</button>
+    </div>
+    <div>
+      <button class="game-btn" onclick="movePlayer(-1, 0)">←</button>
+      <button class="game-btn" onclick="movePlayer(0, 1)">↓</button>
+      <button class="game-btn" onclick="movePlayer(1, 0)">→</button>
+    </div>
+  </div>
+
   <button class="game-btn" onclick="nextLevel()">Next Level</button>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
 
@@ -130,7 +155,7 @@
     let playerPos = { x: 1, y: 1 };
     let moveCount = 0;
     let timerInterval;
-    let timeRemaining = 60;  // 60 seconds per level
+    let timeRemaining = 60;
     const mazeEl = document.getElementById('maze');
     const moveCountEl = document.getElementById('moveCount');
     const timerEl = document.getElementById('timer');
@@ -176,14 +201,12 @@
             return;
           }
 
-          // Update the player position in the level
           const newLevel = level.map(row => row.split(''));
           newLevel[playerPos.y][playerPos.x] = ' ';
           newLevel[newY][newX] = 'P';
 
           levels[currentLevel] = newLevel.map(row => row.join(''));
 
-          // Update player position
           playerPos = { x: newX, y: newY };
           moveCount++;
           moveCountEl.textContent = moveCount;
@@ -226,6 +249,31 @@
         case 'ArrowRight': movePlayer(1, 0); break;
       }
     });
+
+    // Swipe Support
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, false);
+
+    document.addEventListener('touchend', e => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const dx = touchEndX - touchStartX;
+      const dy = touchEndY - touchStartY;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 20) movePlayer(1, 0);     // Swipe right
+        else if (dx < -20) movePlayer(-1, 0); // Swipe left
+      } else {
+        if (dy > 20) movePlayer(0, 1);     // Swipe down
+        else if (dy < -20) movePlayer(0, -1); // Swipe up
+      }
+    }, false);
 
     drawMaze(levels[currentLevel]);
     resetTimer();

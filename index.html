@@ -5,15 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ultimate Linux Webzone</title>
   <style>
-    /* Original Styles */
     :root {
       --bg-color: #0f0f0f;
       --text-color: #00ffcc;
     }
+
     body.light {
       --bg-color: #ffffff;
       --text-color: #000000;
     }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -26,13 +27,69 @@
       transition: background-color 0.5s ease, color 0.5s ease;
       cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
     }
-    /* Additional Styles for Enhanced Features */
+
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01) 1px, transparent 1px, transparent 2px);
+      z-index: 999;
+    }
+
     #particles-js {
       position: fixed;
       width: 100%;
       height: 100%;
       z-index: 0;
     }
+
+    .container {
+      z-index: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 60px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--text-color);
+      animation: glitch 1s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px #ff00c8; }
+      20% { text-shadow: -2px -2px #00fff7; }
+      40% { text-shadow: 2px -2px #ff00c8; }
+      60% { text-shadow: -2px 2px #00fff7; }
+      80% { text-shadow: 2px 2px #ff00c8; }
+      100% { text-shadow: 0 0 var(--text-color); }
+    }
+
+    img {
+      width: 180px;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    img:hover {
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
     .terminal {
       font-size: 1.3rem;
       margin-bottom: 10px;
@@ -40,13 +97,73 @@
       white-space: nowrap;
       overflow: hidden;
     }
+
     .blinker {
       animation: blink 1s step-end infinite;
     }
+
     @keyframes blink {
       50% { opacity: 0; }
     }
-    /* New Dark Mode Toggle Styles */
+
+    input[type="text"] {
+      background: black;
+      border: 1px solid var(--text-color);
+      color: var(--text-color);
+      padding: 8px;
+      font-size: 1rem;
+      width: 300px;
+      margin-top: 10px;
+    }
+
+    button, select {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: var(--text-color);
+      color: var(--bg-color);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+      z-index: 2;
+    }
+
+    button:hover, select:hover {
+      transform: scale(1.1);
+    }
+
+    #terminalOutput {
+      background: #111;
+      color: var(--text-color);
+      border: 1px solid var(--text-color);
+      padding: 10px;
+      margin-top: 15px;
+      max-height: 150px;
+      width: 90%;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    #fact {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      max-width: 600px;
+      transition: opacity 0.5s ease;
+    }
+
+    .secret {
+      display: none;
+      margin-top: 20px;
+      color: #ff00c8;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      input[type="text"], button, select { width: 90%; font-size: 1rem; display: block; margin: 10px auto; }
+    }
+
     .dark-mode-toggle {
       display: flex;
       align-items: center;
@@ -56,15 +173,17 @@
       padding: 5px 10px;
       transition: background-color 0.3s ease;
     }
+
     .dark-mode-toggle .penguin {
       width: 30px;
       height: 30px;
       transition: transform 0.5s ease;
     }
+
     .dark-mode-toggle.light .penguin {
       transform: rotateY(180deg);
     }
-    /* Custom Modal for Game */
+
     #gameModal {
       display: none;
       position: fixed;
@@ -76,6 +195,7 @@
       border: 2px solid #00ffcc;
       z-index: 1001;
     }
+
     #gameModal iframe {
       width: 100%;
       height: 100%;
@@ -104,7 +224,6 @@
       <option value="#ff6600">Orange</option>
     </select>
 
-    <!-- New Dark Mode Toggle with Penguin Icon -->
     <div class="dark-mode-toggle" id="darkModeBtn">
       <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
       <span>Toggle Dark Mode</span>
@@ -143,7 +262,6 @@
       })();
     };
 
-    // Command Handler
     document.getElementById('commandInput').addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         const cmd = e.target.value.toLowerCase();
@@ -164,7 +282,6 @@
       }
     });
 
-    // Linux Fun Fact Button
     const facts = [
       "Linux is the most popular OS for servers.",
       "Android is powered by Linux.",
@@ -177,7 +294,6 @@
       document.getElementById('fact').textContent = fact;
     };
 
-    // Linux Tip Button
     const tips = [
       "Use `ctrl+r` to reverse search your command history.",
       "`htop` is a better version of `top`.",
@@ -189,7 +305,6 @@
       printToTerminal("💡 Tip: " + tips[Math.floor(Math.random() * tips.length)]);
     };
 
-    // Change Background Button
     document.getElementById('changeBgBtn').onclick = () => {
       const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
       const color = colors[Math.floor(Math.random() * colors.length)];
@@ -198,25 +313,29 @@
       document.getElementById('pingSound').play();
     };
 
-    // Background Color Select
     document.getElementById('colorSelect').onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
       localStorage.setItem('bgColor', e.target.value);
       document.getElementById('pingSound').play();
     };
 
-    // Game Button to Open Modal
     document.getElementById('gameBtn').onclick = () => {
       document.getElementById('gameModal').style.display = 'block';
     };
 
-    // Tux Image Click Interaction
     document.getElementById('tux').addEventListener('click', () => {
       document.getElementById('pingSound').play();
       alert("🐧 Tux says: Stay chill, hacker.");
     });
 
-    // Dark Mode Toggle
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'l') {
+        const msg = document.getElementById('easterEggMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+      }
+    });
+
     const darkBtn = document.getElementById('darkModeBtn');
     darkBtn.onclick = () => {
       document.body.classList.toggle('light');
@@ -224,19 +343,6 @@
       localStorage.setItem('darkMode', document.body.classList.contains('light'));
     };
 
-    // Particles.js Initialization
-    particlesJS("particles-js", {
-      particles: {
-        number: { value: 80 },
-        color: { value: "#00ffcc" },
-        shape: { type: "circle" },
-        opacity: { value: 0.3 },
-        size: { value: 3, random: true },
-        move: { enable: true, speed: 1 }
-      }
-    });
-
-    // Konami Code for Easter Egg
     let konami = [];
     const code = "38384040373937396665";
     document.addEventListener('keydown', (e) => {
@@ -250,7 +356,17 @@
       if (konami.length > 20) konami.shift();
     });
 
-    // Terminal Text Typing Animation
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80 },
+        color: { value: "#00ffcc" },
+        shape: { type: "circle" },
+        opacity: { value: 0.3 },
+        size: { value: 3, random: true },
+        move: { enable: true, speed: 1 }
+      }
+    });
+
     const terminalText = document.getElementById('terminalText');
     const messages = [
       "sudo ./webzone --spice",

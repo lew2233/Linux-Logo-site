@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tux Runner</title>
   <style>
     body {
@@ -11,96 +11,96 @@
       color: #00fff7;
       font-family: 'Courier New', monospace;
       overflow: hidden;
-      text-align: center;
     }
 
     canvas {
       display: block;
       background: #111;
       border: 2px solid #00fff7;
-      margin: 20px auto;
+      margin: 20px auto 0;
       box-shadow: 0 0 20px #00fff7;
     }
 
     h1 {
-      font-size: 2rem;
+      text-align: center;
+      font-size: 2.2rem;
+      margin: 20px 0 10px;
       text-shadow: 0 0 10px #00fff7;
-      margin-top: 20px;
     }
 
-    .btn, .back-link {
-      padding: 12px 25px;
-      margin: 10px;
-      font-size: 1rem;
-      cursor: pointer;
+    .controls {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .button-group {
+      text-align: center;
+      margin: 15px;
+      display: none;
+    }
+
+    .arcade-btn {
       background: #00fff7;
       color: #000;
+      font-size: 1.1rem;
+      padding: 12px 25px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      margin: 10px;
+      cursor: pointer;
       box-shadow: 0 0 10px #00fff7;
-      transition: 0.2s;
+      transition: 0.2s ease-in-out;
     }
 
-    .btn:hover, .back-link:hover {
+    .arcade-btn:hover {
       background: #00ccff;
-      box-shadow: 0 0 20px #00fff7, 0 0 30px #00fff7;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00fff7;
     }
 
-    .back-link {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-    }
-
-    #gameOverUI {
+    .tux {
       display: none;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 768px) {
-      canvas {
-        width: 90vw;
-        height: 50vh;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
     }
   </style>
 </head>
 <body>
   <h1>🐧 Tux Runner</h1>
   <canvas id="gameCanvas" width="600" height="300"></canvas>
-
-  <div id="gameOverUI">
-    <h2 style="color: #ff0044;">💀 GAME OVER 💀</h2>
-    <button class="btn" onclick="restartGame()">🔁 Play Again</button>
-    <a class="back-link btn" href="minigames.html">← Back to Arcade</a>
+  <div class="controls">Tap screen or press Space / ↑ to jump</div>
+  <div class="button-group" id="gameButtons">
+    <button class="arcade-btn" onclick="restartGame()">🔁 Play Again</button>
+    <button class="arcade-btn" onclick="window.location.href='minigames.html'">🎮 Back to Arcade</button>
   </div>
+
+  <img id="tuxImage" class="tux" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" />
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const tuxImg = document.getElementById('tuxImage');
 
-    const tuxImg = new Image();
-    tuxImg.src = 'https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg';
+    let tux, obstacles, score, gameOver, gameLoopId;
 
-    const tux = {
-      x: 50,
-      y: 240,
-      width: 40,
-      height: 40,
-      vy: 0,
-      gravity: 1.2,
-      jumpStrength: -14,
-      grounded: true,
-    };
+    function initGame() {
+      tux = {
+        x: 50,
+        y: 240,
+        width: 40,
+        height: 40,
+        vy: 0,
+        gravity: 1.3,
+        jumpStrength: -14,
+        grounded: true,
+        airTime: 0
+      };
 
-    let obstacles = [];
-    let score = 0;
-    let gameOver = false;
-    let animationFrame;
+      obstacles = [];
+      score = 0;
+      gameOver = false;
+      document.getElementById('gameButtons').style.display = 'none';
+    }
 
     function drawTux() {
       ctx.drawImage(tuxImg, tux.x, tux.y, tux.width, tux.height);
@@ -110,7 +110,7 @@
       obstacles.push({
         x: canvas.width,
         width: 20 + Math.random() * 20,
-        height: 30 + Math.random() * 40,
+        height: 30 + Math.random() * 30,
       });
     }
 
@@ -122,29 +122,35 @@
     }
 
     function update() {
-      if (gameOver) return;
-
       tux.vy += tux.gravity;
       tux.y += tux.vy;
+      tux.airTime += 1;
 
       if (tux.y >= 240) {
         tux.y = 240;
         tux.vy = 0;
         tux.grounded = true;
+        tux.airTime = 0;
+      } else {
+        tux.grounded = false;
       }
 
       for (let obs of obstacles) {
-        obs.x -= 5;
+        obs.x -= 3.2; // Slower obstacle speed
+
         if (
           tux.x < obs.x + obs.width &&
           tux.x + tux.width > obs.x &&
           tux.y + tux.height > canvas.height - obs.height
         ) {
-          endGame();
+          gameOver = true;
         }
       }
 
       if (Math.random() < 0.02) spawnObstacle();
+
+      obstacles = obstacles.filter(o => o.x + o.width > 0);
+
       score++;
     }
 
@@ -154,6 +160,12 @@
       ctx.fillText(`Score: ${score}`, 10, 30);
     }
 
+    function drawGameOver() {
+      ctx.fillStyle = '#ff0044';
+      ctx.font = '36px monospace';
+      ctx.fillText('GAME OVER', canvas.width / 2 - 120, canvas.height / 2);
+    }
+
     function loop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawTux();
@@ -161,43 +173,47 @@
       drawScore();
       update();
 
-      if (!gameOver) {
-        animationFrame = requestAnimationFrame(loop);
+      if (gameOver) {
+        drawGameOver();
+        document.getElementById('gameButtons').style.display = 'block';
+        cancelAnimationFrame(gameLoopId);
+        return;
       }
+
+      gameLoopId = requestAnimationFrame(loop);
     }
 
-    function endGame() {
-      gameOver = true;
-      document.getElementById('gameOverUI').style.display = 'block';
-      cancelAnimationFrame(animationFrame);
+    function jump() {
+      if (tux.grounded || tux.airTime < 10) { // Wider jump window
+        tux.vy = tux.jumpStrength;
+        tux.grounded = false;
+        tux.airTime = 999; // prevent re-jumps
+      }
     }
 
     function restartGame() {
-      obstacles = [];
-      tux.y = 240;
-      tux.vy = 0;
-      tux.grounded = true;
-      score = 0;
-      gameOver = false;
-      document.getElementById('gameOverUI').style.display = 'none';
+      initGame();
       loop();
     }
 
-    // Controls for keyboard and mobile
-    function jump() {
-      if (tux.grounded) {
-        tux.vy = tux.jumpStrength;
-        tux.grounded = false;
-      }
-    }
-
     document.addEventListener('keydown', (e) => {
-      if ((e.code === 'Space' || e.code === 'ArrowUp')) jump();
+      if (e.code === 'Space' || e.code === 'ArrowUp') jump();
     });
 
-    canvas.addEventListener('click', jump);
-    canvas.addEventListener('touchstart', jump);
+    canvas.addEventListener('touchstart', () => {
+      jump();
+    });
 
+    // Mobile resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth < 700) {
+        canvas.width = window.innerWidth - 30;
+      } else {
+        canvas.width = 600;
+      }
+    });
+
+    initGame();
     loop();
   </script>
 </body>

@@ -2,34 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>🧠 Terminal Trivia</title>
   <style>
+    :root {
+      --bg: #000;
+      --fg: #00fff7;
+      --button-bg: #00fff7;
+      --button-hover: #00ccff;
+      --canvas-bg: #111;
+      --text-shadow: 0 0 10px var(--fg);
+      --correct: #00ff88;
+      --incorrect: #ff5252;
+      --timer: #ffeb3b;
+      --score: #aaa;
+    }
+
+    body.light {
+      --bg: #fff;
+      --fg: #000;
+      --button-bg: #e0e0e0;
+      --button-hover: #cfcfcf;
+      --canvas-bg: #ccc;
+      --text-shadow: none;
+      --correct: #00cc00;
+      --incorrect: #cc0000;
+      --timer: #ccaa00;
+      --score: #666;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #00fff7;
+      background: var(--bg);
+      color: var(--fg);
       font-family: 'Courier New', monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px;
+      padding: 20px;
       min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
-      font-size: 3rem;
-      text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7;
+      font-size: 2.5rem;
+      text-shadow: var(--text-shadow);
       margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      text-shadow: var(--text-shadow);
+      margin-bottom: 10px;
     }
 
     .question-box, .setup-box, .password-challenge {
       max-width: 700px;
       width: 100%;
-      background: #111;
-      padding: 30px;
+      background: var(--canvas-bg);
+      padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 0 20px #00fff7;
+      box-shadow: 0 0 20px var(--fg);
       text-align: center;
       margin-bottom: 20px;
     }
@@ -40,43 +73,70 @@
       font-family: inherit;
       font-size: 1rem;
       border-radius: 6px;
-      border: none;
+      border: 2px solid var(--fg);
+      background: none;
+      color: var(--fg);
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, button:focus, input:focus {
+      outline: none;
+      border-color: #ff00c8;
     }
 
     .answer {
-      background: #00fff7;
-      color: #000;
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       margin: 8px;
     }
 
     .answer:hover {
-      background: #00ccff;
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     .timer, .result {
       font-size: 1.1rem;
       margin: 10px 0;
-      color: #ffeb3b;
+      color: var(--timer);
     }
 
     .score {
       font-size: 1rem;
       margin-bottom: 10px;
-      color: #aaa;
+      color: var(--score);
     }
 
     .back-link, .play-again {
-      margin-top: 30px;
+      margin-top: 20px;
       font-size: 1.1rem;
-      color: #00fff7;
-      text-decoration: underline;
+      color: var(--fg);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--fg);
       cursor: pointer;
     }
 
     .back-link:hover, .play-again:hover {
-      color: #ffeb3b;
-      text-decoration: none;
+      color: #ff00c8;
+      border-color: #ff00c8;
+    }
+
+    .tux {
+      width: 60px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      h2 { font-size: 1.3rem; }
+      .question-box, .setup-box, .password-challenge { padding: 15px; }
+      select, button, input { font-size: 0.9rem; padding: 8px 16px; }
+      .timer, .result { font-size: 1rem; }
+      .score { font-size: 0.9rem; }
+      .back-link, .play-again { font-size: 0.9rem; }
+      .tux { width: 50px; }
     }
   </style>
 </head>
@@ -85,20 +145,20 @@
 
   <div class="setup-box" id="setup">
     <label for="category">Choose a category:</label><br/>
-    <select id="category">
+    <select id="category" aria-label="Select category">
       <option value="linux">Linux</option>
       <option value="git">Git</option>
       <option value="shell">Shell Scripting</option>
     </select><br/><br/>
 
     <label for="difficulty">Select difficulty:</label><br/>
-    <select id="difficulty">
+    <select id="difficulty" aria-label="Select difficulty">
       <option value="easy">Easy (1pt)</option>
       <option value="medium">Medium (2pt)</option>
       <option value="hard">Hard (3pt)</option>
     </select><br/><br/>
 
-    <button onclick="startQuiz()">▶ Start Quiz</button>
+    <button onclick="startQuiz()" aria-label="Start quiz">▶ Start Quiz</button>
   </div>
 
   <div class="score" id="score" style="display:none;">Score: 0</div>
@@ -112,14 +172,16 @@
   <div class="password-challenge" id="password-challenge" style="display:none;">
     <h2>🔒 Password Challenge!</h2>
     <p>Enter the correct Linux command to hack the system and unlock the bonus.</p>
-    <input type="text" id="command-input" placeholder="Enter command here" />
-    <button onclick="checkPasswordCommand()">Submit</button>
+    <input type="text" id="command-input" placeholder="Enter command here" aria-label="Enter Linux command" />
+    <button onclick="checkPasswordCommand()" aria-label="Submit command">Submit</button>
     <div id="challenge-result" class="result"></div>
     <div id="challenge-timer" class="timer">⏱️ Time left: 30s</div>
   </div>
 
-  <div class="play-again" id="play-again" style="display:none;" onclick="location.reload()">🔁 Play Again</div>
-  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
+
+  <div class="play-again" id="play-again" style="display:none;" onclick="location.reload()" tabindex="0" onkeypress="if(event.key === 'Enter') location.reload()" aria-label="Play again">🔁 Play Again</div>
+  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
 
   <script>
     const questionData = {
@@ -194,12 +256,19 @@
       }
     };
 
-    let questions = [], current = 0, score = 0, timer, timeLeft = 15, difficultyPoints = 1;
-    const passwordCommand = "ls";  // This could be dynamic or a set of commands
+    let questions = [], current = 0, score = 0, timer, timeLeft = 15, difficultyPoints = 1, challengeTimer;
+    let highScore = parseInt(localStorage.getItem('terminalTriviaHighScore')) || 0;
+    const passwordCommands = ["ls", "pwd", "cd", "mkdir", "rm"]; // Array of possible commands
+    const passwordCommand = passwordCommands[Math.floor(Math.random() * passwordCommands.length)]; // Randomly select one
 
     function startQuiz() {
       const cat = document.getElementById("category").value;
       const diff = document.getElementById("difficulty").value;
+
+      if (!cat || !diff) {
+        console.error('Category or difficulty not selected');
+        return;
+      }
 
       questions = [...questionData[cat][diff]];
       difficultyPoints = diff === "easy" ? 1 : diff === "medium" ? 2 : 3;
@@ -208,8 +277,10 @@
       document.getElementById("quiz-box").style.display = "block";
       document.getElementById("score").style.display = "block";
       document.getElementById("timer").style.display = "block";
+      document.getElementById("score").textContent = `Score: ${score} | High Score: ${highScore}`;
 
       loadQuestion();
+      console.log('Quiz started. Category:', cat, 'Difficulty:', diff);
     }
 
     function loadQuestion() {
@@ -223,12 +294,14 @@
         const btn = document.createElement("button");
         btn.className = "answer";
         btn.textContent = opt;
+        btn.setAttribute('aria-label', `Select answer: ${opt}`);
         btn.onclick = () => checkAnswer(opt);
         document.getElementById("answers").appendChild(btn);
       });
 
       document.getElementById("result").textContent = "";
       resetTimer();
+      console.log('Loaded question:', q.question);
     }
 
     function resetTimer() {
@@ -253,15 +326,20 @@
       if (selected === correct) {
         score += difficultyPoints;
         resultDiv.textContent = "✅ Correct!";
-        resultDiv.style.color = "#00ff88";
+        resultDiv.style.color = "var(--correct)";
       } else {
         resultDiv.textContent = `❌ Incorrect! Correct: ${correct}`;
-        resultDiv.style.color = "#ff5252";
+        resultDiv.style.color = "var(--incorrect)";
       }
 
-      document.getElementById("score").textContent = `Score: ${score}`;
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('terminalTriviaHighScore', highScore);
+      }
+      document.getElementById("score").textContent = `Score: ${score} | High Score: ${highScore}`;
       current++;
       setTimeout(loadQuestion, 1500);
+      console.log('Answer checked. Selected:', selected, 'Correct:', correct, 'Score:', score);
     }
 
     function endQuiz() {
@@ -269,31 +347,64 @@
       document.getElementById("timer").style.display = "none";
       document.getElementById("password-challenge").style.display = "block";
       startPasswordChallenge();
+      console.log('Quiz ended. Final score:', score);
     }
 
     function startPasswordChallenge() {
-      let challengeTimer = 30;
-      document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimer}s`;
+      let challengeTimeLeft = 30;
+      document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimeLeft}s`;
 
-      const challengeInterval = setInterval(() => {
-        challengeTimer--;
-        document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimer}s`;
-        if (challengeTimer <= 0) {
-          clearInterval(challengeInterval);
+      challengeTimer = setInterval(() => {
+        challengeTimeLeft--;
+        document.getElementById("challenge-timer").textContent = `⏱️ Time left: ${challengeTimeLeft}s`;
+        if (challengeTimeLeft <= 0) {
+          clearInterval(challengeTimer);
           document.getElementById("challenge-result").textContent = "❌ Time's up! You failed to hack the system.";
+          document.getElementById("play-again").style.display = "block";
+          console.log('Password challenge timed out');
         }
       }, 1000);
     }
 
     function checkPasswordCommand() {
-      const userCommand = document.getElementById("command-input").value.trim();
+      const userCommand = document.getElementById("command-input").value.trim().toLowerCase();
+      const resultDiv = document.getElementById("challenge-result");
+
+      if (!userCommand) {
+        resultDiv.textContent = "❌ Please enter a command!";
+        resultDiv.style.color = "var(--incorrect)";
+        return;
+      }
+
       if (userCommand === passwordCommand) {
-        document.getElementById("challenge-result").textContent = "✅ Correct command! You successfully hacked the system!";
-        score += 10; // Bonus points
+        clearInterval(challengeTimer);
+        score += 10;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem('terminalTriviaHighScore', highScore);
+        }
+        document.getElementById("score").textContent = `Score: ${score} | High Score: ${highScore}`;
+        resultDiv.textContent = "✅ Correct command! You successfully hacked the system!";
+        resultDiv.style.color = "var(--correct)";
+        document.getElementById("play-again").style.display = "block";
+        document.getElementById("command-input").disabled = true;
+        document.querySelector("#password-challenge button").disabled = true;
+        console.log('Password challenge succeeded. Command:', userCommand, 'Score:', score);
       } else {
-        document.getElementById("challenge-result").textContent = "❌ Incorrect command. Try again!";
+        resultDiv.textContent = "❌ Incorrect command. Try again!";
+        resultDiv.style.color = "var(--incorrect)";
+        console.log('Password challenge failed. Command:', userCommand);
       }
     }
+
+    window.onload = () => {
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+      }
+      document.getElementById("score").textContent = `Score: ${score} | High Score: ${highScore}`;
+      console.log('Initial theme. Light mode:', isLight);
+    };
   </script>
 </body>
 </html>

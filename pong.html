@@ -2,13 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Linux Pong</title>
   <style>
+    :root {
+      --bg: #000;
+      --fg: #00fff7;
+      --button-bg: #00fff7;
+      --button-hover: #00ccff;
+      --canvas-bg: #111;
+      --text-shadow: 0 0 10px var(--fg);
+    }
+
+    body.light {
+      --bg: #fff;
+      --fg: #222;
+      --button-bg: #e0e0e0;
+      --button-hover: #cfcfcf;
+      --canvas-bg: #ccc;
+      --text-shadow: none;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #00fff7;
+      background: var(--bg);
+      color: var(--fg);
       font-family: 'Courier New', monospace;
       display: flex;
       flex-direction: column;
@@ -17,47 +35,48 @@
       height: 100vh;
       overflow: hidden;
       padding: 10px;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       font-size: 2rem;
       margin: 10px;
-      text-shadow: 0 0 10px #00fff7;
+      text-shadow: var(--text-shadow);
     }
 
     #scoreboard {
       font-size: 1.5rem;
       margin: 10px 0;
-      text-shadow: 0 0 8px #00fff7;
+      text-shadow: var(--text-shadow);
     }
 
     #difficulty {
       margin-bottom: 10px;
       font-size: 1rem;
-      color: #00fff7;
+      color: var(--fg);
     }
 
     select {
-      background: #111;
-      color: #00fff7;
-      border: 1px solid #00fff7;
+      background: var(--canvas-bg);
+      color: var(--fg);
+      border: 1px solid var(--fg);
       padding: 4px 8px;
       font-family: 'Courier New', monospace;
     }
 
     canvas {
-      background: #111;
-      border: 3px solid #00fff7;
-      box-shadow: 0 0 20px #00fff7;
+      background: var(--canvas-bg);
+      border: 3px solid var(--fg);
+      box-shadow: 0 0 20px var(--fg);
       touch-action: none;
     }
 
     .back-link {
       margin-top: 10px;
-      color: #00fff7;
+      color: var(--fg);
       cursor: pointer;
       text-decoration: none;
-      border-bottom: 1px dashed #00fff7;
+      border-bottom: 1px dashed var(--fg);
     }
 
     .game-over {
@@ -67,7 +86,7 @@
       width: 100vw;
       height: 100vh;
       background: rgba(0, 0, 0, 0.9);
-      color: #00fff7;
+      color: var(--fg);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -80,8 +99,8 @@
     .restart-btn {
       margin-top: 20px;
       background: none;
-      border: 2px solid #00fff7;
-      color: #00fff7;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 10px 20px;
       font-size: 1rem;
       cursor: pointer;
@@ -101,8 +120,8 @@
 
     .control-btn {
       background: none;
-      border: 2px solid #00fff7;
-      color: #00fff7;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 5px 10px;
       font-size: 1rem;
       cursor: pointer;
@@ -119,6 +138,23 @@
       font-size: 1rem;
       text-align: center;
     }
+
+    .tux {
+      width: 60px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      #scoreboard { font-size: 1.2rem; }
+      #difficulty { font-size: 0.9rem; }
+      select { padding: 3px 6px; font-size: 0.9rem; }
+      canvas { width: 90vw; height: 50vw; }
+      .control-btn, .restart-btn { font-size: 0.9rem; padding: 4px 8px; }
+      .instructions { font-size: 0.9rem; }
+      .game-over { font-size: 1.5rem; }
+      .tux { width: 50px; }
+    }
   </style>
 </head>
 <body>
@@ -126,7 +162,7 @@
 
   <div id="difficulty">
     Difficulty:
-    <select id="difficultySelect">
+    <select id="difficultySelect" aria-label="Select difficulty">
       <option value="1.5">Easy</option>
       <option value="2.5" selected>Medium</option>
       <option value="3.5">Hard</option>
@@ -140,22 +176,23 @@
   <canvas id="pongCanvas"></canvas>
 
   <div class="controls">
-    <button class="control-btn" onclick="togglePause()">Pause</button>
-    <button class="control-btn" onclick="toggleSound()">Mute</button>
+    <button class="control-btn" onclick="togglePause()" aria-label="Toggle pause">Pause</button>
+    <button class="control-btn" onclick="toggleSound()" aria-label="Toggle sound">Mute</button>
   </div>
 
   <div class="instructions">
     Move your paddle with the mouse or touch. First to 5 points wins!
   </div>
 
-  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="console.warn('Failed to load Tux image at /assets/tux.svg')" />
+
+  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
 
   <div id="gameOverScreen" class="game-over" style="display: none;">
     <div id="gameOverText">Game Over</div>
-    <button class="restart-btn" onclick="restartGame()">Restart</button>
+    <button class="restart-btn" onclick="restartGame()" aria-label="Restart game">Restart</button>
   </div>
 
-  <!-- Sounds (base64-encoded short sfx) -->
   <audio id="bounce" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAABAQABAQABAQABAQABAQABAQABAQAB" preload="auto"></audio>
   <audio id="score" src="data:audio/wav;base64,UklGRgAAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAAA//8A" preload="auto"></audio>
   <audio id="gameover" src="data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAD//w==" preload="auto"></audio>
@@ -189,14 +226,14 @@
     resizeCanvas();
 
     function drawPaddle(x, y) {
-      ctx.fillStyle = "#00fff7";
+      ctx.fillStyle = "var(--fg)";
       ctx.fillRect(x, y, paddleWidth, paddleHeight);
     }
 
     function drawBall(x, y) {
       ctx.beginPath();
       ctx.arc(x, y, ballSize, 0, Math.PI * 2);
-      ctx.fillStyle = "#00fff7";
+      ctx.fillStyle = "var(--fg)";
       ctx.fill();
       ctx.closePath();
     }
@@ -217,7 +254,9 @@
       isGameOver = true;
       document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
       document.getElementById("gameOverScreen").style.display = "flex";
-      if (!isMuted) gameoverSound.play();
+      if (!isMuted) {
+        gameoverSound.play().catch(e => console.warn('Game over sound failed:', e));
+      }
     }
 
     function restartGame() {
@@ -232,6 +271,7 @@
 
     function togglePause() {
       isPaused = !isPaused;
+      document.querySelector(".control-btn:nth-child(1)").textContent = isPaused ? "Resume" : "Pause";
       if (!isPaused) draw();
     }
 
@@ -240,14 +280,14 @@
       document.querySelector(".control-btn:nth-child(2)").textContent = isMuted ? "Unmute" : "Mute";
     }
 
-        function draw() {
+    function draw() {
       if (isGameOver || isPaused) return;
 
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      drawPaddle(0, playerY); // Player
-      drawPaddle(canvas.width - paddleWidth, aiY); // AI
+      drawPaddle(0, playerY);
+      drawPaddle(canvas.width - paddleWidth, aiY);
       drawBall(ballX, ballY);
 
       ballX += ballVX;
@@ -255,46 +295,52 @@
 
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
-        if (!isMuted) bounceSound.play();
+        if (!isMuted) {
+          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+        }
       }
 
-      // Player paddle
       if (
         ballX - ballSize < paddleWidth &&
         ballY > playerY &&
         ballY < playerY + paddleHeight
       ) {
         ballVX *= -1;
-        if (!isMuted) bounceSound.play();
+        if (!isMuted) {
+          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+        }
       }
 
-      // AI paddle
       if (
         ballX + ballSize > canvas.width - paddleWidth &&
         ballY > aiY &&
         ballY < aiY + paddleHeight
       ) {
         ballVX *= -1;
-        if (!isMuted) bounceSound.play();
+        if (!isMuted) {
+          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+        }
       }
 
-      // AI follows ball with random inaccuracy
       const aiCenter = aiY + paddleHeight / 2;
       if (Math.abs(aiCenter - ballY) > 10) {
         if (aiCenter < ballY - 10) aiY += aiSpeed + Math.random() * 1;
         else aiY -= aiSpeed + Math.random() * 1;
       }
 
-      // Score
       if (ballX < 0) {
         aiScore++;
-        if (!isMuted) scoreSound.play();
+        if (!isMuted) {
+          scoreSound.play().catch(e => console.warn('Score sound failed:', e));
+        }
         updateScore();
         if (aiScore >= 5) return gameOver("AI");
         resetBall();
       } else if (ballX > canvas.width) {
         playerScore++;
-        if (!isMuted) scoreSound.play();
+        if (!isMuted) {
+          scoreSound.play().catch(e => console.warn('Score sound failed:', e));
+        }
         updateScore();
         if (playerScore >= 5) return gameOver("Player");
         resetBall();
@@ -307,6 +353,8 @@
       const rect = canvas.getBoundingClientRect();
       const scaleY = canvas.height / rect.height;
       playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
+      if (playerY < 0) playerY = 0;
+      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
     });
 
     canvas.addEventListener("touchmove", (e) => {
@@ -315,13 +363,21 @@
       const touch = e.touches[0];
       const scaleY = canvas.height / rect.height;
       playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
+      if (playerY < 0) playerY = 0;
+      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
     }, { passive: false });
 
     document.getElementById("difficultySelect").addEventListener("change", (e) => {
       aiSpeed = parseFloat(e.target.value);
     });
 
-    draw();
+    window.onload = () => {
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+      }
+      draw();
+    };
   </script>
 </body>
 </html>

@@ -25,7 +25,6 @@
       overflow-x: hidden;
       scroll-behavior: smooth;
       transition: background-color 0.5s ease, color 0.5s ease;
-      cursor: url('/assets/cursor.cur'), auto; /* Host locally */
     }
 
     .no-glitch h1 {
@@ -177,7 +176,7 @@
   <div id="particles-js"></div>
   <div class="container">
     <h1>🔥 Ultimate Linux Webzone 🔥</h1>
-    <img src="/assets/Tux.png" id="tux" alt="Tux Linux Logo">
+    <img src="/assets/tux.png" id="tux" alt="Tux Linux Logo">
 
     <div class="terminal"><span id="terminalText"></span><span class="blinker">|</span></div>
     <input type="text" id="commandInput" placeholder="Type a command like: uname -a" aria-label="Terminal command input" />
@@ -185,9 +184,8 @@
     
     <button id="factBtn">Get Linux Fun Fact</button>
     <button id="changeBgBtn">Change Background</button>
-    <button id="soundToggleBtn">Mute Sound</button>
     <button id="glitchToggleBtn">Disable Glitch</button>
-    <button onclick="window.location.href='https://lew2233.github.io/Linux-Logo-site/minigames.html'">🎮 Mini Games</button>
+    <button onclick="window.location.href='/Linux-Logo-site/minigames.html'">🎮 Mini Games</button>
     <select id="colorSelect" aria-label="Select background color">
       <option value="#0f0f0f">Black</option>
       <option value="#1e3a8a">Navy Blue</option>
@@ -197,7 +195,7 @@
     </select>
 
     <div class="dark-mode-toggle" id="darkModeBtn" role="button" aria-label="Toggle dark mode">
-      <img src="/assets/Tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
+      <img src="/assets/tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
       <span>Toggle Dark Mode</span>
     </div>
 
@@ -205,12 +203,8 @@
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
   </div>
 
-  <audio id="pingSound" src="/assets/beep.wav" preload="auto"></audio> <!-- Host locally -->
-
   <script src="/assets/particles.min.js"></script>
   <script>
-    let isSoundEnabled = true;
-
     window.onload = () => {
       const savedBg = localStorage.getItem('bgColor');
       if (savedBg) document.body.style.backgroundColor = savedBg;
@@ -221,6 +215,10 @@
       }
       const isGlitchDisabled = localStorage.getItem('disableGlitch') === 'true';
       if (isGlitchDisabled) document.body.classList.add('no-glitch');
+
+      // Verify asset loading
+      const tuxImg = document.getElementById('tux');
+      tuxImg.onerror = () => console.warn('Failed to load Tux image at /assets/tux.png');
     };
 
     const darkBtn = document.getElementById('darkModeBtn');
@@ -243,7 +241,7 @@
         }
       });
     } catch (e) {
-      console.warn('Particles.js failed to load:', e);
+      console.warn('Particles.js failed to load at /assets/particles.min.js:', e);
     }
 
     const terminalText = document.getElementById('terminalText');
@@ -311,7 +309,6 @@
     bgSelect.onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
       localStorage.setItem('bgColor', e.target.value);
-      if (isSoundEnabled) playSound();
     };
 
     document.getElementById('changeBgBtn').onclick = () => {
@@ -319,12 +316,6 @@
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       document.body.style.backgroundColor = randomColor;
       localStorage.setItem('bgColor', randomColor);
-      if (isSoundEnabled) playSound();
-    };
-
-    document.getElementById('soundToggleBtn').onclick = () => {
-      isSoundEnabled = !isSoundEnabled;
-      document.getElementById('soundToggleBtn').textContent = isSoundEnabled ? 'Mute Sound' : 'Unmute Sound';
     };
 
     document.getElementById('glitchToggleBtn').onclick = () => {
@@ -337,7 +328,6 @@
     const tux = document.getElementById('tux');
     let tuxClicks = 0;
     tux.addEventListener('click', () => {
-      if (isSoundEnabled) playSound();
       tuxClicks++;
       if (tuxClicks >= 4) {
         terminalOutput.textContent = "🐧 You found the hidden penguin party!";
@@ -354,15 +344,6 @@
         setTimeout(() => msg.style.display = 'none', 3000);
       }
     });
-
-    function playSound() {
-      const sound = document.getElementById('pingSound');
-      sound.play().catch(e => console.warn('Sound playback failed:', e));
-    }
-
-    document.getElementById('pingSound').onerror = () => {
-      console.warn('Failed to load sound file.');
-    };
   </script>
 </body>
 </html>

@@ -8,17 +8,13 @@
     :root {
       --bg: #000;
       --fg: #00fff7;
-      --button-bg: #00fff7;
-      --button-hover: #00ccff;
       --canvas-bg: #111;
-      --text-shadow: 0 0 10px var(--fg);
+      --text-shadow: 0 0 10px #00fff7;
     }
 
     body.light {
       --bg: #fff;
       --fg: #000;
-      --button-bg: #e0e0e0;
-      --button-hover: #cfcfcf;
       --canvas-bg: #ccc;
       --text-shadow: none;
     }
@@ -33,43 +29,28 @@
       align-items: center;
       justify-content: start;
       height: 100vh;
-      overflow: hidden;
       padding: 10px;
       transition: background 0.3s, color 0.3s;
     }
 
+    canvas {
+      display: block;
+      background: var(--canvas-bg);
+      border: 2px solid var(--fg);
+      margin: 20px auto;
+      box-shadow: 0 0 20px var(--fg);
+    }
+
     h1 {
       font-size: 2rem;
-      margin: 10px;
       text-shadow: var(--text-shadow);
-    }
-
-    #scoreboard {
-      font-size: 1.5rem;
       margin: 10px 0;
-      text-shadow: var(--text-shadow);
     }
 
-    #difficulty {
+    .scoreboard {
+      font-size: 1.5rem;
       margin-bottom: 10px;
-      font-size: 1rem;
-      color: var(--fg);
-    }
-
-    select {
-      background: var(--canvas-bg);
-      color: var(--fg);
-      border: 1px solid var(--fg);
-      padding: 4px 8px;
-      font-family: 'Courier New', monospace;
-    }
-
-    canvas {
-      background: var(--canvas-bg);
-      border: 3px solid var(--fg);
-      box-shadow: 0 0 20px var(--fg);
-      touch-action: none;
-      outline: 1px solid red; /* Debug: Ensure canvas is visible */
+      text-align: center;
     }
 
     .back-link {
@@ -78,45 +59,14 @@
       cursor: pointer;
       text-decoration: none;
       border-bottom: 1px dashed var(--fg);
-    }
-
-    .game-over {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      color: var(--fg);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
       text-align: center;
-      z-index: 10;
-    }
-
-    .restart-btn {
-      margin-top: 20px;
-      background: none;
-      border: 2px solid var(--fg);
-      color: var(--fg);
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-family: 'Courier New', monospace;
-    }
-
-    .restart-btn:hover {
-      color: #ff00c8;
-      border-color: #ff00c8;
     }
 
     .controls {
       margin-top: 10px;
       display: flex;
       gap: 10px;
+      justify-content: center;
     }
 
     .control-btn {
@@ -134,12 +84,6 @@
       border-color: #ff00c8;
     }
 
-    .instructions {
-      margin-top: 10px;
-      font-size: 1rem;
-      text-align: center;
-    }
-
     .tux {
       width: 60px;
       margin-top: 10px;
@@ -147,267 +91,167 @@
 
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
-      #scoreboard { font-size: 1.2rem; }
-      #difficulty { font-size: 0.9rem; }
-      select { padding: 3px 6px; font-size: 0.9rem; }
       canvas { width: 90vw; height: 50vw; }
-      .control-btn, .restart-btn { font-size: 0.9rem; padding: 4px 8px; }
-      .instructions { font-size: 0.9rem; }
-      .game-over { font-size: 1.5rem; }
+      .scoreboard { font-size: 1.2rem; }
+      .control-btn { font-size: 0.9rem; padding: 4px 8px; }
       .tux { width: 50px; }
+      .back-link { font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
   <h1>🏓 Linux Pong</h1>
-
-  <div id="difficulty">
-    Difficulty:
-    <select id="difficultySelect" aria-label="Select difficulty">
-      <option value="1.5">Easy</option>
-      <option value="2.5" selected>Medium</option>
-      <option value="3.5">Hard</option>
-    </select>
-  </div>
-
-  <div id="scoreboard">
-    <span id="playerScore">0</span> : <span id="aiScore">0</span>
-  </div>
-
-  <canvas id="pongCanvas"></canvas>
-
+  <div class="scoreboard" id="scoreboard">0 : 0 | High Score: 0</div>
+  <canvas id="pongCanvas" width="600" height="300"></canvas>
   <div class="controls">
-    <button class="control-btn" onclick="togglePause()" aria-label="Toggle pause">Pause</button>
     <button class="control-btn" onclick="toggleSound()" aria-label="Toggle sound">Mute</button>
     <button class="control-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
   </div>
-
-  <div class="instructions">
-    Move your paddle with the mouse or touch. First to 5 points wins!
-  </div>
-
-  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
-
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" loading="lazy" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
   <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
 
-  <div id="gameOverScreen" class="game-over" style="display: none;">
-    <div id="gameOverText">Game Over</div>
-    <button class="restart-btn" onclick="restartGame()" aria-label="Restart game">Restart</button>
-  </div>
-
-  <audio id="bounce" src="data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAABAQABAQABAQABAQABAQABAQABAQAB" preload="auto"></audio>
-  <audio id="score" src="data:audio/wav;base64,UklGRgAAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAAA//8A" preload="auto"></audio>
-  <audio id="gameover" src="data:audio/wav;base64,UklGRkQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAAAAQAAAP//AAD//w==" preload="auto"></audio>
+  <audio id="bounce" src="data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YRAAAAABAQABAQABAQABAQABAQABAQABAQAB" preload="auto"></audio>
+  <audio id="score" src="data:audio/wav;base64,UklGRkIAAABXQVZFZm10IBAAAAABAAEAAAEAAAEAAAACABAAZGF0YSAAAAABAQACAQABAQACAQABAQACAQABAQACAQAB" preload="auto"></audio>
 
   <script>
-    const canvas = document.getElementById("pongCanvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('pongCanvas');
+    const ctx = canvas.getContext('2d');
 
-    const paddleWidth = 10, paddleHeight = 80, ballSize = 10;
-    let playerY = 0, aiY = 0, ballX = 0, ballY = 0, ballVX = 4, ballVY = 4;
-    let aiSpeed = 2.5;
+    const paddleWidth = 10, paddleHeight = 60, ballSize = 10;
+    let playerY = (canvas.height - paddleHeight) / 2;
+    let aiY = (canvas.height - paddleHeight) / 2;
+    let ballX = canvas.width / 2, ballY = canvas.height / 2;
+    let ballSpeedX = 5, ballSpeedY = 3;
     let playerScore = 0, aiScore = 0;
-    let isGameOver = false;
-    let isPaused = false;
+    let highScore = parseInt(localStorage.getItem('pongHighScore')) || 0;
     let isMuted = false;
-    let hasInteracted = false;
 
-    const bounceSound = document.getElementById("bounce");
-    const scoreSound = document.getElementById("score");
-    const gameoverSound = document.getElementById("gameover");
+    const bounceSound = document.getElementById('bounce');
+    const scoreSound = document.getElementById('score');
 
     function resizeCanvas() {
       canvas.width = Math.min(window.innerWidth * 0.9, 600);
-      canvas.height = Math.min(window.innerHeight * 0.6, 400);
-      playerY = canvas.height / 2 - paddleHeight / 2;
-      aiY = canvas.height / 2 - paddleHeight / 2;
+      canvas.height = Math.min(window.innerHeight * 0.5, 300);
+      playerY = (canvas.height - paddleHeight) / 2;
+      aiY = (canvas.height - paddleHeight) / 2;
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
       console.log('Canvas resized:', canvas.width, canvas.height);
     }
 
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener('resize', resizeCanvas);
 
-    function drawPaddle(x, y) {
+    function draw() {
+      const isLightMode = document.body.classList.contains('light');
+      ctx.fillStyle = isLightMode ? '#ccc' : '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
-      ctx.fillRect(x, y, paddleWidth, paddleHeight);
-      console.log('Drawing paddle at:', x, y);
-    }
+      ctx.fillRect(20, playerY, paddleWidth, paddleHeight);
+      ctx.fillRect(canvas.width - 20 - paddleWidth, aiY, paddleWidth, paddleHeight);
+      ctx.fillRect(ballX - ballSize / 2, ballY - ballSize / 2, ballSize, ballSize);
 
-    function drawBall(x, y) {
+      ctx.setLineDash([5, 15]);
       ctx.beginPath();
-      ctx.arc(x, y, ballSize, 0, Math.PI * 2);
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
-      ctx.fill();
-      ctx.closePath();
-      console.log('Drawing ball at:', x, y);
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
+      ctx.stroke();
     }
 
     function updateScore() {
-      document.getElementById("playerScore").textContent = playerScore;
-      document.getElementById("aiScore").textContent = aiScore;
+      if (playerScore > highScore) {
+        highScore = playerScore;
+        localStorage.setItem('pongHighScore', highScore);
+      }
+      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore}`;
+    }
+
+    function update() {
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      if (ballY < 0 || ballY > canvas.height) {
+        ballSpeedY = -ballSpeedY;
+        if (!isMuted) bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+      }
+
+      if (ballX < 30 && ballX > 20 && ballY > playerY && ballY < playerY + paddleHeight) {
+        ballSpeedX = -ballSpeedX;
+        if (!isMuted) bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+      }
+
+      if (ballX > canvas.width - 30 && ballX < canvas.width - 20 && ballY > aiY && ballY < aiY + paddleHeight) {
+        ballSpeedX = -ballSpeedX;
+        if (!isMuted) bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
+      }
+
+      if (ballX < 0) {
+        aiScore++;
+        resetBall();
+        if (!isMuted) scoreSound.play().catch(e => console.warn('Score sound failed:', e));
+      }
+
+      if (ballX > canvas.width) {
+        playerScore++;
+        resetBall();
+        if (!isMuted) scoreSound.play().catch(e => console.warn('Score sound failed:', e));
+      }
+
+      aiY += (ballY - (aiY + paddleHeight / 2)) * 0.1;
+      updateScore();
     }
 
     function resetBall() {
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
-      ballVX *= Math.random() > 0.5 ? 1 : -1;
-      ballVY = 4 * (Math.random() > 0.5 ? 1 : -1);
-      console.log('Ball reset:', ballX, ballY, ballVX, ballVY);
+      ballSpeedX = -ballSpeedX;
+      ballSpeedY = (Math.random() * 6 - 3);
     }
 
-    function gameOver(winner) {
-      isGameOver = true;
-      document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
-      document.getElementById("gameOverScreen").style.display = "flex";
-      if (!isMuted && hasInteracted) {
-        gameoverSound.play().catch(e => console.warn('Game over sound failed:', e));
-      }
-    }
-
-    function restartGame() {
-      playerScore = 0;
-      aiScore = 0;
-      updateScore();
-      resetBall();
-      document.getElementById("gameOverScreen").style.display = "none";
-      isGameOver = false;
-      isPaused = false;
-      document.querySelector(".control-btn:nth-child(1)").textContent = "Pause";
-      resizeCanvas();
+    function loop() {
       draw();
-      hasInteracted = true;
+      update();
+      requestAnimationFrame(loop);
     }
 
-    function togglePause() {
-      isPaused = !isPaused;
-      document.querySelector(".control-btn:nth-child(1)").textContent = isPaused ? "Resume" : "Pause";
-      if (!isPaused) draw();
-      hasInteracted = true;
-    }
+    document.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      playerY = e.clientY - rect.top - paddleHeight / 2;
+      if (playerY < 0) playerY = 0;
+      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      playerY = touch.clientY - rect.top - paddleHeight / 2;
+      if (playerY < 0) playerY = 0;
+      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
+    }, { passive: false });
 
     function toggleSound() {
       isMuted = !isMuted;
-      document.querySelector(".control-btn:nth-child(2)").textContent = isMuted ? "Unmute" : "Mute";
-      hasInteracted = true;
+      document.querySelector(".control-btn:nth-child(1)").textContent = isMuted ? "Unmute" : "Mute";
+      console.log('Sound toggled. Muted:', isMuted);
     }
 
     function toggleTheme() {
       const isLightMode = document.body.classList.contains('light');
       document.body.classList.toggle('light');
       localStorage.setItem('darkMode', !isLightMode);
-      hasInteracted = true;
       console.log('Theme toggled. Light mode:', !isLightMode);
     }
 
-    function draw() {
-      if (isGameOver || isPaused) return;
-
-      const isLightMode = document.body.classList.contains('light');
-      ctx.fillStyle = isLightMode ? '#ccc' : '#111'; // Match --canvas-bg values
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      drawPaddle(0, playerY);
-      drawPaddle(canvas.width - paddleWidth, aiY);
-      drawBall(ballX, ballY);
-
-      ballX += ballVX;
-      ballY += ballVY;
-
-      if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
-        ballVY *= -1;
-        if (!isMuted && hasInteracted) {
-          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
-        }
-      }
-
-      if (
-        ballX - ballSize < paddleWidth &&
-        ballY > playerY &&
-        ballY < playerY + paddleHeight
-      ) {
-        ballVX *= -1;
-        if (!isMuted && hasInteracted) {
-          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
-        }
-      }
-
-      if (
-        ballX + ballSize > canvas.width - paddleWidth &&
-        ballY > aiY &&
-        ballY < aiY + paddleHeight
-      ) {
-        ballVX *= -1;
-        if (!isMuted && hasInteracted) {
-          bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
-        }
-      }
-
-      const aiCenter = aiY + paddleHeight / 2;
-      if (Math.abs(aiCenter - ballY) > 10) {
-        if (aiCenter < ballY - 10) aiY += aiSpeed + Math.random() * 1;
-        else aiY -= aiSpeed + Math.random() * 1;
-      }
-
-      if (aiY < 0) aiY = 0;
-      if (aiY > canvas.height - paddleHeight) aiY = canvas.height - paddleHeight;
-
-      if (ballX < 0) {
-        aiScore++;
-        if (!isMuted && hasInteracted) {
-          scoreSound.play().catch(e => console.warn('Score sound failed:', e));
-        }
-        updateScore();
-        if (aiScore >= 5) return gameOver("AI");
-        resetBall();
-      } else if (ballX > canvas.width) {
-        playerScore++;
-        if (!isMuted && hasInteracted) {
-          scoreSound.play().catch(e => console.warn('Score sound failed:', e));
-        }
-        updateScore();
-        if (playerScore >= 5) return gameOver("Player");
-        resetBall();
-      }
-
-      requestAnimationFrame(draw);
-    }
-
-    document.addEventListener("mousemove", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const scaleY = canvas.height / rect.height;
-      playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
-      if (playerY < 0) playerY = 0;
-      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
-      hasInteracted = true;
-    });
-
-    canvas.addEventListener("touchmove", (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      const scaleY = canvas.height / rect.height;
-      playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
-      if (playerY < 0) playerY = 0;
-      if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
-      hasInteracted = true;
-    }, { passive: false });
-
-    document.getElementById("difficultySelect").addEventListener("change", (e) => {
-      aiSpeed = parseFloat(e.target.value);
-      hasInteracted = true;
-    });
-
     window.onload = () => {
       const isLight = localStorage.getItem('darkMode') === 'true';
-      if (isLight) {
-        document.body.classList.add('light');
-      }
+      if (isLight) document.body.classList.add('light');
       resizeCanvas();
+      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore}`;
       console.log('Initial theme. Light mode:', isLight);
+      loop();
     };
-
-    draw();
   </script>
 </body>
 </html>

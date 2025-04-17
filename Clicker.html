@@ -127,6 +127,13 @@
       background: var(--fg);
       color: var(--bg);
     }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .score, .level, .shop, .prestige { font-size: 1.1rem; }
+      .tux { width: 120px; }
+      .btn { font-size: 0.9rem; padding: 8px 15px; }
+    }
   </style>
 </head>
 <body>
@@ -138,7 +145,7 @@
   <div class="level">Points Per Click: <span id="ppc">1</span></div>
   <div class="prestige">Prestige Points: <span id="prestige">0</span></div>
 
-  <img src="/assets/Tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" />
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" onerror="console.warn('Failed to load Tux image at /assets/tux.svg')" />
 
   <div class="shop">
     <p>Upgrade Click Power</p>
@@ -150,7 +157,7 @@
     <button class="btn" onclick="prestige()">Prestige</button>
   </div>
 
-  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'">← Back to Arcade</div>
 
   <script>
     let points = 0;
@@ -217,8 +224,18 @@
     }
 
     function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
       document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
     }
+
+    window.onload = () => {
+      // Apply dark mode from localStorage
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+      }
+    };
 
     updateUI();
   </script>

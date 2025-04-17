@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tux Runner</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #00fff7;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      background: #111;
+      border: 2px solid #00fff7;
+      margin: 30px auto;
+      box-shadow: 0 0 20px #00fff7;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #00fff7;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+      cursor: pointer;
+      color: #00fff7;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐧 Tux Runner</h1>
+  <canvas id="gameCanvas" width="600" height="300"></canvas>
+  <div class="back-link" onclick="window.location.href='index.html'">← Back to Webzone</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const tux = {
+      x: 50,
+      y: 240,
+      width: 40,
+      height: 40,
+      vy: 0,
+      gravity: 1.5,
+      jumpStrength: -15,
+      grounded: true,
+    };
+
+    const obstacles = [];
+    let score = 0;
+    let gameOver = false;
+
+    function drawTux() {
+      ctx.fillStyle = '#00fff7';
+      ctx.fillRect(tux.x, tux.y, tux.width, tux.height);
+    }
+
+    function spawnObstacle() {
+      obstacles.push({
+        x: canvas.width,
+        width: 20 + Math.random() * 20,
+        height: 30 + Math.random() * 30,
+      });
+    }
+
+    function drawObstacles() {
+      ctx.fillStyle = '#ff0044';
+      for (let obs of obstacles) {
+        ctx.fillRect(obs.x, canvas.height - obs.height, obs.width, obs.height);
+      }
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      tux.vy += tux.gravity;
+      tux.y += tux.vy;
+
+      if (tux.y >= 240) {
+        tux.y = 240;
+        tux.vy = 0;
+        tux.grounded = true;
+      }
+
+      for (let obs of obstacles) {
+        obs.x -= 5;
+
+        if (
+          tux.x < obs.x + obs.width &&
+          tux.x + tux.width > obs.x &&
+          tux.y + tux.height > canvas.height - obs.height
+        ) {
+          gameOver = true;
+        }
+      }
+
+      if (Math.random() < 0.02) spawnObstacle();
+
+      score++;
+    }
+
+    function drawScore() {
+      ctx.fillStyle = '#00fff7';
+      ctx.font = '20px monospace';
+      ctx.fillText(`Score: ${score}`, 10, 30);
+    }
+
+    function drawGameOver() {
+      ctx.fillStyle = '#ff0044';
+      ctx.font = '40px monospace';
+      ctx.fillText('GAME OVER', 180, 150);
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTux();
+      drawObstacles();
+      drawScore();
+      update();
+
+      if (gameOver) {
+        drawGameOver();
+        return;
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.code === 'Space' || e.code === 'ArrowUp') && tux.grounded) {
+        tux.vy = tux.jumpStrength;
+        tux.grounded = false;
+      }
+    });
+
+    loop();
+  </script>
+</body>
+</html>

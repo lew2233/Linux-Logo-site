@@ -75,7 +75,7 @@
       font-family: 'Courier New', monospace;
       position: absolute;
       left: 50%;
-      top: calc(50% + 150px); /* Adjust to place below canvas (canvas height/2 + offset) */
+      top: calc(50% + 150px);
       transform: translateX(-50%);
       transition: all 0.2s ease;
     }
@@ -90,23 +90,49 @@
       margin-top: 10px;
     }
 
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .control-btn {
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
+      padding: 5px 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+
+    .control-btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
       canvas { width: 90vw; height: 50vw; }
       .play-again-btn { 
         font-size: 0.9rem; 
         padding: 8px 16px; 
-        top: calc(50% + 25vw); /* Adjust for smaller canvas height */
+        top: calc(50% + 25vw);
       }
       .tux { width: 50px; }
       .back-link { font-size: 0.9rem; }
+      .control-btn { font-size: 0.9rem; padding: 4px 8px; }
     }
   </style>
 </head>
 <body>
   <h1>🐧 Tux Runner</h1>
   <canvas id="gameCanvas" width="600" height="300"></canvas>
-  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
+  <div class="controls">
+    <button class="control-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
+  </div>
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" loading="lazy" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
   <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
   <button class="play-again-btn" id="playAgainBtn" onclick="resetGame()" aria-label="Play again">Play Again</button>
 
@@ -126,7 +152,7 @@
     };
 
     const obstacles = [];
-    let score = 0;
+    let score = 0, highScore = parseInt(localStorage.getItem('tuxRunnerHighScore')) || 0;
     let gameOver = false;
 
     function resizeCanvas() {
@@ -202,12 +228,17 @@
       if (Math.random() < 0.02) spawnObstacle();
 
       score++;
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('tuxRunnerHighScore', highScore);
+      }
     }
 
     function drawScore() {
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
       ctx.font = '20px monospace';
       ctx.fillText(`Score: ${score}`, 10, 30);
+      ctx.fillText(`High Score: ${highScore}`, 10, 50);
     }
 
     function drawGameOver() {
@@ -246,13 +277,31 @@
       loop();
     }
 
-    document.addEventListener('keydown', (e) => {
-      if ((e.code === 'Space' || e.code === 'ArrowUp') && tux.grounded) {
+    function jumpTux() {
+      if (tux.grounded) {
         tux.vy = tux.jumpStrength;
         tux.grounded = false;
         console.log('Tux jumped:', tux.vy);
       }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.code === 'Space' || e.code === 'ArrowUp')) {
+        jumpTux();
+      }
     });
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      jumpTux();
+    }, { passive: false });
+
+    function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
+      document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
+    }
 
     window.onload = () => {
       const isLight = localStorage.getItem('darkMode') === 'true';

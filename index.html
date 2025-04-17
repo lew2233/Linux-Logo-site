@@ -28,18 +28,6 @@
       cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(0deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01) 1px, transparent 1px, transparent 2px);
-      z-index: 999;
-    }
-
     #particles-js {
       position: fixed;
       width: 100%;
@@ -133,18 +121,6 @@
       transform: scale(1.1);
     }
 
-    #terminalOutput {
-      background: #111;
-      color: var(--text-color);
-      border: 1px solid var(--text-color);
-      padding: 10px;
-      margin-top: 15px;
-      max-height: 150px;
-      width: 90%;
-      overflow-y: auto;
-      text-align: left;
-    }
-
     #fact {
       margin-top: 15px;
       font-size: 1.1rem;
@@ -161,7 +137,7 @@
 
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
-      input[type="text"], button, select { width: 90%; font-size: 1rem; display: block; margin: 10px auto; }
+      input[type="text"], button, select { width: 90%; font-size: 1rem; }
     }
 
     .dark-mode-toggle {
@@ -183,24 +159,6 @@
     .dark-mode-toggle.light .penguin {
       transform: rotateY(180deg);
     }
-
-    #gameModal {
-      display: none;
-      position: fixed;
-      top: 5%;
-      left: 5%;
-      width: 90%;
-      height: 90%;
-      background: #000;
-      border: 2px solid #00ffcc;
-      z-index: 1001;
-    }
-
-    #gameModal iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
   </style>
 </head>
 <body>
@@ -213,9 +171,8 @@
     <input type="text" id="commandInput" placeholder="Type a command like: uname -a" />
     
     <button id="factBtn">Get Linux Fun Fact</button>
-    <button id="tipBtn">Linux Tip of the Day</button>
     <button id="changeBgBtn">Change Background</button>
-    <button id="gameBtn">🎮 Mini Games</button>
+    <button onclick="window.location.href='https://lew2233.github.io/Linux-Logo-site/minigames.html'">🎮 Mini Games</button>
     <select id="colorSelect">
       <option value="#0f0f0f">Black</option>
       <option value="#1e3a8a">Blue</option>
@@ -224,137 +181,43 @@
       <option value="#ff6600">Orange</option>
     </select>
 
+    <!-- Penguin Dark Mode Toggle -->
     <div class="dark-mode-toggle" id="darkModeBtn">
       <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
       <span>Toggle Dark Mode</span>
     </div>
 
-    <div id="terminalOutput"></div>
     <p id="fact"></p>
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
   </div>
-
-  <div id="gameModal"><iframe src="https://lew2233.github.io/Linux-Logo-site/minigames.html"></iframe></div>
 
   <audio id="pingSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
-    const terminalOutput = document.getElementById('terminalOutput');
-    function printToTerminal(text) {
-      terminalOutput.innerHTML += `> ${text}<br>`;
-      terminalOutput.scrollTop = terminalOutput.scrollHeight;
-    }
-
     window.onload = () => {
       const savedBg = localStorage.getItem('bgColor');
+      const savedDark = localStorage.getItem('darkMode');
+
       if (savedBg) document.body.style.backgroundColor = savedBg;
-
-      const welcome = "Welcome to the Ultimate Linux Webzone.";
-      let i = 0;
-      (function typeWelcome() {
-        if (i < welcome.length) {
-          terminalOutput.innerHTML += welcome[i++];
-          setTimeout(typeWelcome, 60);
-        } else {
-          terminalOutput.innerHTML += "<br>";
-        }
-      })();
-    };
-
-    document.getElementById('commandInput').addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        const cmd = e.target.value.toLowerCase();
-        const responses = {
-          'uname': 'Linux 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux',
-          'whoami': 'You are root. 😎',
-          'ls': 'Documents  Downloads  Music  Pictures  Videos',
-          'cd': 'Changed directory (not really)',
-          'neofetch': 'Tux OS v1.0 - Mem: 16GB - Kernel: Epic',
-          'ps': 'PID TTY TIME CMD\n1234 pts/0 00:00:01 bash\n5678 pts/0 00:00:00 node',
-          'sudo': 'You really think you have permissions to edit this. LOL',
-          'ascii': `\
-     .--.\n    |o_o |\n    |:_/ |\n   //   \\\\ \\\\\n  (|     | )\n /'\\\\_   _/\\\`\n \\___)=(___/`
-        };
-        const found = Object.keys(responses).find(k => cmd.includes(k));
-        printToTerminal(responses[found] || `Command not found: ${cmd}`);
-        e.target.value = '';
+      if (savedDark === 'false') {
+        document.body.classList.add('light');
+        document.getElementById('darkModeBtn').classList.add('light');
+      } else {
+        document.body.classList.remove('light');
       }
-    });
-
-    const facts = [
-      "Linux is the most popular OS for servers.",
-      "Android is powered by Linux.",
-      "Over 90% of supercomputers run Linux!",
-      "Tux was almost an eagle or a fox!",
-      "Linus originally named it 'Freax'."
-    ];
-    document.getElementById('factBtn').onclick = () => {
-      const fact = facts[Math.floor(Math.random() * facts.length)];
-      document.getElementById('fact').textContent = fact;
     };
-
-    const tips = [
-      "Use `ctrl+r` to reverse search your command history.",
-      "`htop` is a better version of `top`.",
-      "`!!` repeats your last command.",
-      "`alias gs='git status'` saves time.",
-      "Use `man` for built-in help!"
-    ];
-    document.getElementById('tipBtn').onclick = () => {
-      printToTerminal("💡 Tip: " + tips[Math.floor(Math.random() * tips.length)]);
-    };
-
-    document.getElementById('changeBgBtn').onclick = () => {
-      const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      document.body.style.backgroundColor = color;
-      localStorage.setItem('bgColor', color);
-      document.getElementById('pingSound').play();
-    };
-
-    document.getElementById('colorSelect').onchange = (e) => {
-      document.body.style.backgroundColor = e.target.value;
-      localStorage.setItem('bgColor', e.target.value);
-      document.getElementById('pingSound').play();
-    };
-
-    document.getElementById('gameBtn').onclick = () => {
-      document.getElementById('gameModal').style.display = 'block';
-    };
-
-    document.getElementById('tux').addEventListener('click', () => {
-      document.getElementById('pingSound').play();
-      alert("🐧 Tux says: Stay chill, hacker.");
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'l') {
-        const msg = document.getElementById('easterEggMsg');
-        msg.style.display = 'block';
-        setTimeout(() => msg.style.display = 'none', 3000);
-      }
-    });
 
     const darkBtn = document.getElementById('darkModeBtn');
     darkBtn.onclick = () => {
+      const penguinIcon = document.getElementById('penguinIcon');
+      const isLightMode = document.body.classList.contains('light');
+
       document.body.classList.toggle('light');
       darkBtn.classList.toggle('light');
-      localStorage.setItem('darkMode', document.body.classList.contains('light'));
+      const isDark = !isLightMode;
+      localStorage.setItem('darkMode', isDark);
     };
-
-    let konami = [];
-    const code = "38384040373937396665";
-    document.addEventListener('keydown', (e) => {
-      konami.push(e.keyCode);
-      if (konami.join('').includes(code)) {
-        document.body.style.backgroundImage = "linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet)";
-        document.body.style.backgroundSize = "600% 600%";
-        document.body.style.animation = "rainbow 10s infinite";
-        printToTerminal("🌈 KONAMI UNLOCKED 🌈");
-      }
-      if (konami.length > 20) konami.shift();
-    });
 
     particlesJS("particles-js", {
       particles: {
@@ -364,6 +227,9 @@
         opacity: { value: 0.3 },
         size: { value: 3, random: true },
         move: { enable: true, speed: 1 }
+      },
+      interactivity: {
+        events: { onhover: { enable: true, mode: "repulse" } }
       }
     });
 
@@ -390,6 +256,76 @@
       }
     }
     typeTerminal();
+
+    const commandInput = document.getElementById('commandInput');
+    commandInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const cmd = commandInput.value.toLowerCase();
+        const responses = {
+          'uname': 'Linux 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux',
+          'whoami': 'You are root. 😎',
+          'ls': 'Documents  Downloads  Music  Pictures  Videos',
+          'cd': 'Changed directory (not really)',
+          'neofetch': 'Tux OS v1.0 - Mem: 16GB - Kernel: Epic',
+          'ps': 'PID TTY TIME CMD\n1234 pts/0 00:00:01 bash\n5678 pts/0 00:00:00 node',
+          'sudo': 'You really think you have permissions to edit this. LOL',
+        };
+        const found = Object.keys(responses).find(k => cmd.includes(k));
+        alert(found ? responses[found] : `Command not found: ${cmd}`);
+        commandInput.value = '';
+      }
+    });
+
+    const facts = [
+      "Linux is the most popular OS for servers.",
+      "Android is powered by Linux.",
+      "Over 90% of supercomputers run Linux!",
+      "Tux was almost an eagle or a fox!",
+      "Linus originally named it 'Freax'."
+    ];
+    document.getElementById('factBtn').onclick = () => {
+      const fact = facts[Math.floor(Math.random() * facts.length)];
+      const factEl = document.getElementById('fact');
+      factEl.style.opacity = 0;
+      setTimeout(() => {
+        factEl.textContent = fact;
+        factEl.style.opacity = 1;
+      }, 300);
+    };
+
+    const bgSelect = document.getElementById('colorSelect');
+    bgSelect.onchange = (e) => {
+      document.body.style.backgroundColor = e.target.value;
+      localStorage.setItem('bgColor', e.target.value);
+    };
+
+    document.getElementById('changeBgBtn').onclick = () => {
+      const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      document.body.style.backgroundColor = randomColor;
+      localStorage.setItem('bgColor', randomColor);
+    };
+
+    const tux = document.getElementById('tux');
+    let tuxClicks = 0;
+    tux.addEventListener('click', () => {
+      document.getElementById('pingSound').play();
+      tuxClicks++;
+      if (tuxClicks >= 4) {
+        alert("🐧 You found the hidden penguin party!");
+        tuxClicks = 0;
+      } else {
+        alert("🐧 Tux says: Stay chill, hacker.");
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'l') {
+        const msg = document.getElementById('easterEggMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+      }
+    });
   </script>
 </body>
 </html>

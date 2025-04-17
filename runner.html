@@ -47,6 +47,7 @@
       border-radius: 12px;
       box-shadow: 0 0 15px #00fff7;
       transition: all 0.2s ease;
+      display: none; /* Initially hidden */
     }
 
     .play-again-btn:hover {
@@ -59,7 +60,7 @@
   <h1>🐧 Tux Runner</h1>
   <canvas id="gameCanvas" width="600" height="300"></canvas>
   <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
-  <button class="play-again-btn" id="playAgainBtn" style="display:none;" onclick="resetGame()">Play Again</button>
+  <button class="play-again-btn" id="playAgainBtn" onclick="resetGame()">Play Again</button>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -71,8 +72,8 @@
       width: 40,
       height: 40,
       vy: 0,
-      gravity: 0.8, // Decreased gravity for slower fall
-      jumpStrength: -18, // Increased jump strength for higher jumps
+      gravity: 1, // Adjust gravity for slower fall
+      jumpStrength: -16, // Higher jump strength for better jumps
       grounded: true,
     };
 
@@ -117,7 +118,7 @@
       }
 
       for (let obs of obstacles) {
-        obs.x -= 4; // Slower obstacle speed
+        obs.x -= 3; // Slower obstacles
 
         if (
           tux.x < obs.x + obs.width &&
@@ -168,7 +169,7 @@
       obstacles.length = 0;
       score = 0;
       gameOver = false;
-      document.getElementById('playAgainBtn').style.display = 'none';
+      document.getElementById('playAgainBtn').style.display = 'none'; // Hide play again button
       loop();
     }
 

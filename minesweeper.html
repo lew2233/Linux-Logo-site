@@ -2,24 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Retro Minesweeper</title>
   <style>
+    :root {
+      --bg: #000;
+      --fg: #00fff7;
+      --button-bg: #00fff7;
+      --button-hover: #00ccff;
+      --cell-bg: #222;
+      --cell-revealed: #444;
+      --text-shadow: 0 0 10px var(--fg);
+    }
+
+    body.light {
+      --bg: #fff;
+      --fg: #222;
+      --button-bg: #e0e0e0;
+      --button-hover: #cfcfcf;
+      --cell-bg: #ccc;
+      --cell-revealed: #aaa;
+      --text-shadow: none;
+    }
+
     body {
       margin: 0;
       font-family: 'Courier New', monospace;
-      background: #000;
-      color: #00fff7;
+      background: var(--bg);
+      color: var(--fg);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       margin: 20px;
       font-size: 3rem;
-      text-shadow: 0 0 10px #00fff7;
+      text-shadow: var(--text-shadow);
     }
 
     .board {
@@ -33,21 +54,21 @@
     .cell {
       width: 50px;
       height: 50px;
-      background-color: #222;
+      background-color: var(--cell-bg);
       display: flex;
       justify-content: center;
       align-items: center;
       font-size: 20px;
-      color: #00fff7;
+      color: var(--fg);
       cursor: pointer;
-      border: 2px solid #00fff7;
+      border: 2px solid var(--fg);
       transition: 0.2s;
-      box-shadow: 0 0 5px rgba(0, 255, 247, 0.7);
+      box-shadow: 0 0 5px var(--fg)70;
     }
 
     .cell.revealed {
-      background-color: #444;
-      color: #000;
+      background-color: var(--cell-revealed);
+      color: var(--fg);
     }
 
     .cell.flagged {
@@ -56,13 +77,19 @@
     }
 
     .cell.mined {
-      background-color: red;
+      background-color: #ff0000;
       color: #fff;
     }
 
-    .game-over, .win {
+    .game-over {
       font-size: 1.5rem;
       color: #ff0000;
+      margin-top: 20px;
+    }
+
+    .win {
+      font-size: 1.5rem;
+      color: #00ff00;
       margin-top: 20px;
     }
 
@@ -72,16 +99,16 @@
       margin: 10px;
       border: none;
       border-radius: 10px;
-      background: #00fff7;
-      color: #000;
+      background: var(--button-bg);
+      color: var(--bg);
       cursor: pointer;
-      box-shadow: 0 0 10px #00fff7;
+      box-shadow: 0 0 10px var(--button-bg);
       transition: 0.2s;
     }
 
     button:hover {
-      background: #00ccff;
-      box-shadow: 0 0 20px #00fff7;
+      background: var(--button-hover);
+      box-shadow: 0 0 20px var(--fg);
       transform: scale(1.05);
     }
 
@@ -89,13 +116,21 @@
       font-size: 1.2rem;
       margin-top: 10px;
     }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .board { grid-template-columns: repeat(10, 35px); grid-template-rows: repeat(10, 35px); }
+      .cell { width: 35px; height: 35px; font-size: 16px; }
+      button { font-size: 1.2rem; padding: 10px 20px; }
+      .status { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
   <h1>Retro Minesweeper</h1>
   <div id="board" class="board"></div>
-  <button onclick="startGame()">Start New Game</button>
-  <button onclick="window.location.href='minigames.html'">Back to Arcade</button>
+  <button onclick="startGame()" aria-label="Start new game">Start New Game</button>
+  <button onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">Back to Arcade</button>
   <div id="status" class="status"></div>
 
   <script>
@@ -195,25 +230,24 @@
         row.forEach((cell, colIndex) => {
           const cellEl = document.createElement("div");
           cellEl.classList.add("cell");
+          cellEl.setAttribute('aria-label', `Cell at row ${rowIndex + 1}, column ${colIndex + 1}`);
 
           if (cell.revealed) {
             cellEl.classList.add("revealed");
-
             if (cell.isMine) {
               cellEl.classList.add("mined");
-              cellEl.textContent = "💣"; // Display bomb when clicked
+              cellEl.textContent = "💣";
             } else if (cell.adjacentMines > 0) {
-              cellEl.textContent = cell.adjacentMines; // Show adjacent mine count
+              cellEl.textContent = cell.adjacentMines;
             }
           } else if (cell.flagged) {
             cellEl.classList.add("flagged");
-            cellEl.textContent = "🚩"; // Display flag when flagged
+            cellEl.textContent = "🚩";
           }
 
-          // Add event listeners for click (left click for reveal, right click for flag)
           cellEl.onclick = () => revealCell(rowIndex, colIndex);
           cellEl.oncontextmenu = (e) => {
-            e.preventDefault(); // Prevent default right-click menu
+            e.preventDefault();
             flagCell(rowIndex, colIndex);
           };
 
@@ -244,7 +278,14 @@
       statusEl.innerHTML = "";
     }
 
-    startGame();
+    window.onload = () => {
+      // Apply dark mode from localStorage
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+      }
+      startGame();
+    };
   </script>
 </body>
 </html>

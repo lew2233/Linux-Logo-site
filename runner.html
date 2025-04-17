@@ -36,6 +36,7 @@
     }
 
     .play-again-btn {
+      display: none; /* Initially hidden */
       text-align: center;
       margin-top: 30px;
       padding: 15px 30px;
@@ -47,7 +48,9 @@
       border-radius: 12px;
       box-shadow: 0 0 15px #00fff7;
       transition: all 0.2s ease;
-      display: none; /* Initially hidden */
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .play-again-btn:hover {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tux Runner</title>
   <style>
     body {
@@ -17,100 +17,83 @@
       display: block;
       background: #111;
       border: 2px solid #00fff7;
-      margin: 20px auto 0;
+      margin: 30px auto;
       box-shadow: 0 0 20px #00fff7;
     }
 
     h1 {
       text-align: center;
-      font-size: 2.2rem;
-      margin: 20px 0 10px;
+      font-size: 2rem;
       text-shadow: 0 0 10px #00fff7;
     }
 
-    .controls {
+    .back-link {
       text-align: center;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-
-    .button-group {
-      text-align: center;
-      margin: 15px;
-      display: none;
-    }
-
-    .arcade-btn {
-      background: #00fff7;
-      color: #000;
-      font-size: 1.1rem;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 10px;
-      margin: 10px;
+      margin-top: 20px;
       cursor: pointer;
-      box-shadow: 0 0 10px #00fff7;
-      transition: 0.2s ease-in-out;
+      color: #00fff7;
+      text-decoration: underline;
     }
 
-    .arcade-btn:hover {
-      background: #00ccff;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #00fff7;
+    .play-again-btn {
+      text-align: center;
+      margin-top: 30px;
+      padding: 15px 30px;
+      background-color: #00fff7;
+      color: #000;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #00fff7;
+      transition: all 0.2s ease;
     }
 
-    .tux {
-      display: none;
+    .play-again-btn:hover {
+      background-color: #00ccff;
+      box-shadow: 0 0 25px #00fff7;
     }
   </style>
 </head>
 <body>
   <h1>🐧 Tux Runner</h1>
   <canvas id="gameCanvas" width="600" height="300"></canvas>
-  <div class="controls">Tap screen or press Space / ↑ to jump</div>
-  <div class="button-group" id="gameButtons">
-    <button class="arcade-btn" onclick="restartGame()">🔁 Play Again</button>
-    <button class="arcade-btn" onclick="window.location.href='minigames.html'">🎮 Back to Arcade</button>
-  </div>
-
-  <img id="tuxImage" class="tux" src="https://upload.wikimedia.org/wikipedia/commons/3/35/Tux.svg" />
+  <div class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</div>
+  <button class="play-again-btn" id="playAgainBtn" style="display:none;" onclick="resetGame()">Play Again</button>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const tuxImg = document.getElementById('tuxImage');
 
-    let tux, obstacles, score, gameOver, gameLoopId;
+    const tux = {
+      x: 50,
+      y: 240,
+      width: 40,
+      height: 40,
+      vy: 0,
+      gravity: 0.8, // Decreased gravity for slower fall
+      jumpStrength: -18, // Increased jump strength for higher jumps
+      grounded: true,
+    };
 
-    function initGame() {
-      tux = {
-        x: 50,
-        y: 240,
-        width: 40,
-        height: 40,
-        vy: 0,
-        gravity: 1.3,
-        jumpStrength: -14,
-        grounded: true,
-        airTime: 0
-      };
-
-      obstacles = [];
-      score = 0;
-      gameOver = false;
-      document.getElementById('gameButtons').style.display = 'none';
-    }
+    const obstacles = [];
+    let score = 0;
+    let gameOver = false;
 
     function drawTux() {
-      ctx.drawImage(tuxImg, tux.x, tux.y, tux.width, tux.height);
+      ctx.fillStyle = '#00fff7';
+      ctx.fillRect(tux.x, tux.y, tux.width, tux.height);
     }
 
     function spawnObstacle() {
+      const obstacleHeight = 30 + Math.random() * 30;
+      const obstacleWidth = 20 + Math.random() * 20;
+      const spaceBetween = 150 + Math.random() * 100; // Increased space between obstacles
+
       obstacles.push({
-        x: canvas.width,
-        width: 20 + Math.random() * 20,
-        height: 30 + Math.random() * 30,
+        x: canvas.width + spaceBetween,
+        width: obstacleWidth,
+        height: obstacleHeight,
       });
     }
 
@@ -122,21 +105,19 @@
     }
 
     function update() {
+      if (gameOver) return;
+
       tux.vy += tux.gravity;
       tux.y += tux.vy;
-      tux.airTime += 1;
 
       if (tux.y >= 240) {
         tux.y = 240;
         tux.vy = 0;
         tux.grounded = true;
-        tux.airTime = 0;
-      } else {
-        tux.grounded = false;
       }
 
       for (let obs of obstacles) {
-        obs.x -= 3.2; // Slower obstacle speed
+        obs.x -= 4; // Slower obstacle speed
 
         if (
           tux.x < obs.x + obs.width &&
@@ -149,8 +130,6 @@
 
       if (Math.random() < 0.02) spawnObstacle();
 
-      obstacles = obstacles.filter(o => o.x + o.width > 0);
-
       score++;
     }
 
@@ -162,8 +141,8 @@
 
     function drawGameOver() {
       ctx.fillStyle = '#ff0044';
-      ctx.font = '36px monospace';
-      ctx.fillText('GAME OVER', canvas.width / 2 - 120, canvas.height / 2);
+      ctx.font = '40px monospace';
+      ctx.fillText('GAME OVER', 180, 150);
     }
 
     function loop() {
@@ -175,45 +154,31 @@
 
       if (gameOver) {
         drawGameOver();
-        document.getElementById('gameButtons').style.display = 'block';
-        cancelAnimationFrame(gameLoopId);
+        document.getElementById('playAgainBtn').style.display = 'block'; // Show play again button
         return;
       }
 
-      gameLoopId = requestAnimationFrame(loop);
+      requestAnimationFrame(loop);
     }
 
-    function jump() {
-      if (tux.grounded || tux.airTime < 10) { // Wider jump window
-        tux.vy = tux.jumpStrength;
-        tux.grounded = false;
-        tux.airTime = 999; // prevent re-jumps
-      }
-    }
-
-    function restartGame() {
-      initGame();
+    function resetGame() {
+      tux.y = 240;
+      tux.vy = 0;
+      tux.grounded = true;
+      obstacles.length = 0;
+      score = 0;
+      gameOver = false;
+      document.getElementById('playAgainBtn').style.display = 'none';
       loop();
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp') jump();
-    });
-
-    canvas.addEventListener('touchstart', () => {
-      jump();
-    });
-
-    // Mobile resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth < 700) {
-        canvas.width = window.innerWidth - 30;
-      } else {
-        canvas.width = 600;
+      if ((e.code === 'Space' || e.code === 'ArrowUp') && tux.grounded) {
+        tux.vy = tux.jumpStrength;
+        tux.grounded = false;
       }
     });
 
-    initGame();
     loop();
   </script>
 </body>

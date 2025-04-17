@@ -69,6 +69,7 @@
       border: 3px solid var(--fg);
       box-shadow: 0 0 20px var(--fg);
       touch-action: none;
+      outline: 1px solid red; /* Debug: Ensure canvas is visible */
     }
 
     .back-link {
@@ -184,7 +185,7 @@
     Move your paddle with the mouse or touch. First to 5 points wins!
   </div>
 
-  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="console.warn('Failed to load Tux image at /assets/tux.svg')" />
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
 
   <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
 
@@ -208,6 +209,7 @@
     let isGameOver = false;
     let isPaused = false;
     let isMuted = false;
+    let hasInteracted = false;
 
     const bounceSound = document.getElementById("bounce");
     const scoreSound = document.getElementById("score");
@@ -257,7 +259,7 @@
       isGameOver = true;
       document.getElementById("gameOverText").textContent = `🎉 ${winner} Wins! 🎉`;
       document.getElementById("gameOverScreen").style.display = "flex";
-      if (!isMuted) {
+      if (!isMuted && hasInteracted) {
         gameoverSound.play().catch(e => console.warn('Game over sound failed:', e));
       }
     }
@@ -273,17 +275,20 @@
       document.querySelector(".control-btn:nth-child(1)").textContent = "Pause";
       resizeCanvas();
       draw();
+      hasInteracted = true;
     }
 
     function togglePause() {
       isPaused = !isPaused;
       document.querySelector(".control-btn:nth-child(1)").textContent = isPaused ? "Resume" : "Pause";
       if (!isPaused) draw();
+      hasInteracted = true;
     }
 
     function toggleSound() {
       isMuted = !isMuted;
       document.querySelector(".control-btn:nth-child(2)").textContent = isMuted ? "Unmute" : "Mute";
+      hasInteracted = true;
     }
 
     function draw() {
@@ -301,7 +306,7 @@
 
       if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
         ballVY *= -1;
-        if (!isMuted) {
+        if (!isMuted && hasInteracted) {
           bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
         }
       }
@@ -312,7 +317,7 @@
         ballY < playerY + paddleHeight
       ) {
         ballVX *= -1;
-        if (!isMuted) {
+        if (!isMuted && hasInteracted) {
           bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
         }
       }
@@ -323,7 +328,7 @@
         ballY < aiY + paddleHeight
       ) {
         ballVX *= -1;
-        if (!isMuted) {
+        if (!isMuted && hasInteracted) {
           bounceSound.play().catch(e => console.warn('Bounce sound failed:', e));
         }
       }
@@ -339,7 +344,7 @@
 
       if (ballX < 0) {
         aiScore++;
-        if (!isMuted) {
+        if (!isMuted && hasInteracted) {
           scoreSound.play().catch(e => console.warn('Score sound failed:', e));
         }
         updateScore();
@@ -347,7 +352,7 @@
         resetBall();
       } else if (ballX > canvas.width) {
         playerScore++;
-        if (!isMuted) {
+        if (!isMuted && hasInteracted) {
           scoreSound.play().catch(e => console.warn('Score sound failed:', e));
         }
         updateScore();
@@ -364,6 +369,7 @@
       playerY = (e.clientY - rect.top) * scaleY - paddleHeight / 2;
       if (playerY < 0) playerY = 0;
       if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
+      hasInteracted = true;
     });
 
     canvas.addEventListener("touchmove", (e) => {
@@ -374,10 +380,12 @@
       playerY = (touch.clientY - rect.top) * scaleY - paddleHeight / 2;
       if (playerY < 0) playerY = 0;
       if (playerY > canvas.height - paddleHeight) playerY = canvas.height - paddleHeight;
+      hasInteracted = true;
     }, { passive: false });
 
     document.getElementById("difficultySelect").addEventListener("change", (e) => {
       aiSpeed = parseFloat(e.target.value);
+      hasInteracted = true;
     });
 
     window.onload = () => {

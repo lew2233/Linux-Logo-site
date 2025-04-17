@@ -197,14 +197,8 @@
   <script>
     window.onload = () => {
       const savedBg = localStorage.getItem('bgColor');
-      const savedDark = localStorage.getItem('darkMode');
-
-      if (savedBg) document.body.style.backgroundColor = savedBg;
-      if (savedDark === 'false') {
-        document.body.classList.add('light');
-        document.getElementById('darkModeBtn').classList.add('light');
-      } else {
-        document.body.classList.remove('light');
+      if (savedBg) {
+        document.body.style.backgroundColor = savedBg;
       }
     };
 
@@ -220,18 +214,15 @@
     };
 
     particlesJS("particles-js", {
-      particles: {
-        number: { value: 80 },
-        color: { value: "#00ffcc" },
-        shape: { type: "circle" },
-        opacity: { value: 0.3 },
-        size: { value: 3, random: true },
-        move: { enable: true, speed: 1 }
-      },
-      interactivity: {
-        events: { onhover: { enable: true, mode: "repulse" } }
-      }
-    });
+    particles: {
+    number: { value: 80 },
+    color: { value: "#00ffcc" },
+    shape: { type: "circle" },
+    opacity: { value: 0.3 },
+    size: { value: 3, random: true },
+    move: { enable: true, speed: 1 }
+    }
+  });
 
     const terminalText = document.getElementById('terminalText');
     const messages = [
@@ -297,6 +288,7 @@
     bgSelect.onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
       localStorage.setItem('bgColor', e.target.value);
+      document.getElementById('pingSound').play();  // Play sound when color changes
     };
 
     document.getElementById('changeBgBtn').onclick = () => {
@@ -304,6 +296,7 @@
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       document.body.style.backgroundColor = randomColor;
       localStorage.setItem('bgColor', randomColor);
+      document.getElementById('pingSound').play();  // Play sound on background change
     };
 
     const tux = document.getElementById('tux');

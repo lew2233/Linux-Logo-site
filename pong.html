@@ -202,7 +202,7 @@
     const ctx = canvas.getContext("2d");
 
     const paddleWidth = 10, paddleHeight = 80, ballSize = 10;
-    let playerY, aiY, ballX, ballY, ballVX = 4, ballVY = 4;
+    let playerY = 0, aiY = 0, ballX = 0, ballY = 0, ballVX = 4, ballVY = 4;
     let aiSpeed = 2.5;
     let playerScore = 0, aiScore = 0;
     let isGameOver = false;
@@ -220,14 +220,15 @@
       aiY = canvas.height / 2 - paddleHeight / 2;
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
+      console.log('Canvas resized:', canvas.width, canvas.height);
     }
 
     window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
 
     function drawPaddle(x, y) {
       ctx.fillStyle = "var(--fg)";
       ctx.fillRect(x, y, paddleWidth, paddleHeight);
+      console.log('Drawing paddle at:', x, y);
     }
 
     function drawBall(x, y) {
@@ -236,6 +237,7 @@
       ctx.fillStyle = "var(--fg)";
       ctx.fill();
       ctx.closePath();
+      console.log('Drawing ball at:', x, y);
     }
 
     function updateScore() {
@@ -248,6 +250,7 @@
       ballY = canvas.height / 2;
       ballVX *= Math.random() > 0.5 ? 1 : -1;
       ballVY = 4 * (Math.random() > 0.5 ? 1 : -1);
+      console.log('Ball reset:', ballX, ballY, ballVX, ballVY);
     }
 
     function gameOver(winner) {
@@ -266,6 +269,9 @@
       resetBall();
       document.getElementById("gameOverScreen").style.display = "none";
       isGameOver = false;
+      isPaused = false;
+      document.querySelector(".control-btn:nth-child(1)").textContent = "Pause";
+      resizeCanvas();
       draw();
     }
 
@@ -328,6 +334,9 @@
         else aiY -= aiSpeed + Math.random() * 1;
       }
 
+      if (aiY < 0) aiY = 0;
+      if (aiY > canvas.height - paddleHeight) aiY = canvas.height - paddleHeight;
+
       if (ballX < 0) {
         aiScore++;
         if (!isMuted) {
@@ -376,8 +385,10 @@
       if (isLight) {
         document.body.classList.add('light');
       }
-      draw();
+      resizeCanvas();
     };
+
+    draw();
   </script>
 </body>
 </html>

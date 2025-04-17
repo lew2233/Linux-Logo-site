@@ -25,7 +25,11 @@
       overflow-x: hidden;
       scroll-behavior: smooth;
       transition: background-color 0.5s ease, color 0.5s ease;
-      cursor: url('https://cur.cursors-4u.net/cursors/cur-13/cur1145.cur'), auto;
+      cursor: url('/assets/cursor.cur'), auto; /* Host locally */
+    }
+
+    .no-glitch h1 {
+      animation: none;
     }
 
     #particles-js {
@@ -121,6 +125,14 @@
       transform: scale(1.1);
     }
 
+    #terminalOutput {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      max-width: 600px;
+      min-height: 1.5rem;
+      color: var(--text-color);
+    }
+
     #fact {
       margin-top: 15px;
       font-size: 1.1rem;
@@ -168,61 +180,71 @@
     <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" id="tux" alt="Tux Linux Logo">
 
     <div class="terminal"><span id="terminalText"></span><span class="blinker">|</span></div>
-    <input type="text" id="commandInput" placeholder="Type a command like: uname -a" />
+    <input type="text" id="commandInput" placeholder="Type a command like: uname -a" aria-label="Terminal command input" />
+    <div id="terminalOutput" aria-live="polite"></div>
     
     <button id="factBtn">Get Linux Fun Fact</button>
     <button id="changeBgBtn">Change Background</button>
+    <button id="soundToggleBtn">Mute Sound</button>
+    <button id="glitchToggleBtn">Disable Glitch</button>
     <button onclick="window.location.href='https://lew2233.github.io/Linux-Logo-site/minigames.html'">🎮 Mini Games</button>
-    <select id="colorSelect">
+    <select id="colorSelect" aria-label="Select background color">
       <option value="#0f0f0f">Black</option>
-      <option value="#1e3a8a">Blue</option>
-      <option value="#4b0082">Purple</option>
-      <option value="#006400">Green</option>
-      <option value="#ff6600">Orange</option>
+      <option value="#1e3a8a">Navy Blue</option>
+      <option value="#4b0082">Indigo</option>
+      <option value="#006400">Dark Green</option>
+      <option value="#8b4513">Saddle Brown</option>
     </select>
 
-    <!-- Penguin Dark Mode Toggle -->
-    <div class="dark-mode-toggle" id="darkModeBtn">
+    <div class="dark-mode-toggle" id="darkModeBtn" role="button" aria-label="Toggle dark mode">
       <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
       <span>Toggle Dark Mode</span>
     </div>
 
-    <p id="fact"></p>
+    <p id="fact" aria-live="polite"></p>
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
   </div>
 
-  <audio id="pingSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  <audio id="pingSound" src="/assets/beep.wav" preload="auto"></audio> <!-- Host locally -->
 
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   <script>
+    let isSoundEnabled = true;
+
     window.onload = () => {
       const savedBg = localStorage.getItem('bgColor');
-      if (savedBg) {
-        document.body.style.backgroundColor = savedBg;
+      if (savedBg) document.body.style.backgroundColor = savedBg;
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+        document.getElementById('darkModeBtn').classList.add('light');
       }
+      const isGlitchDisabled = localStorage.getItem('disableGlitch') === 'true';
+      if (isGlitchDisabled) document.body.classList.add('no-glitch');
     };
 
     const darkBtn = document.getElementById('darkModeBtn');
     darkBtn.onclick = () => {
-      const penguinIcon = document.getElementById('penguinIcon');
       const isLightMode = document.body.classList.contains('light');
-
       document.body.classList.toggle('light');
       darkBtn.classList.toggle('light');
-      const isDark = !isLightMode;
-      localStorage.setItem('darkMode', isDark);
+      localStorage.setItem('darkMode', !isLightMode);
     };
 
-    particlesJS("particles-js", {
-    particles: {
-    number: { value: 80 },
-    color: { value: "#00ffcc" },
-    shape: { type: "circle" },
-    opacity: { value: 0.3 },
-    size: { value: 3, random: true },
-    move: { enable: true, speed: 1 }
+    try {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 50 },
+          color: { value: "#00ffcc" },
+          shape: { type: "circle" },
+          opacity: { value: 0.3 },
+          size: { value: 3, random: true },
+          move: { enable: true, speed: 0.5 }
+        }
+      });
+    } catch (e) {
+      console.warn('Particles.js failed to load:', e);
     }
-  });
 
     const terminalText = document.getElementById('terminalText');
     const messages = [
@@ -249,6 +271,7 @@
     typeTerminal();
 
     const commandInput = document.getElementById('commandInput');
+    const terminalOutput = document.getElementById('terminalOutput');
     commandInput.addEventListener('keypress', e => {
       if (e.key === 'Enter') {
         const cmd = commandInput.value.toLowerCase();
@@ -259,10 +282,10 @@
           'cd': 'Changed directory (not really)',
           'neofetch': 'Tux OS v1.0 - Mem: 16GB - Kernel: Epic',
           'ps': 'PID TTY TIME CMD\n1234 pts/0 00:00:01 bash\n5678 pts/0 00:00:00 node',
-          'sudo': 'You really think you have permissions to edit this. LOL',
+          'sudo': 'You really think you have permissions to edit this. LOL'
         };
         const found = Object.keys(responses).find(k => cmd.includes(k));
-        alert(found ? responses[found] : `Command not found: ${cmd}`);
+        terminalOutput.textContent = found ? responses[found] : `Command not found: ${cmd}`;
         commandInput.value = '';
       }
     });
@@ -288,27 +311,39 @@
     bgSelect.onchange = (e) => {
       document.body.style.backgroundColor = e.target.value;
       localStorage.setItem('bgColor', e.target.value);
-      document.getElementById('pingSound').play();  // Play sound when color changes
+      if (isSoundEnabled) playSound();
     };
 
     document.getElementById('changeBgBtn').onclick = () => {
-      const colors = ['#1e1e1e', '#4b0082', '#003300', '#330000', '#000'];
+      const colors = ['#0f0f0f', '#1e3a8a', '#4b0082', '#006400', '#8b4513'];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       document.body.style.backgroundColor = randomColor;
       localStorage.setItem('bgColor', randomColor);
-      document.getElementById('pingSound').play();  // Play sound on background change
+      if (isSoundEnabled) playSound();
+    };
+
+    document.getElementById('soundToggleBtn').onclick = () => {
+      isSoundEnabled = !isSoundEnabled;
+      document.getElementById('soundToggleBtn').textContent = isSoundEnabled ? 'Mute Sound' : 'Unmute Sound';
+    };
+
+    document.getElementById('glitchToggleBtn').onclick = () => {
+      const isGlitchDisabled = document.body.classList.contains('no-glitch');
+      document.body.classList.toggle('no-glitch');
+      localStorage.setItem('disableGlitch', !isGlitchDisabled);
+      document.getElementById('glitchToggleBtn').textContent = isGlitchDisabled ? 'Disable Glitch' : 'Enable Glitch';
     };
 
     const tux = document.getElementById('tux');
     let tuxClicks = 0;
     tux.addEventListener('click', () => {
-      document.getElementById('pingSound').play();
+      if (isSoundEnabled) playSound();
       tuxClicks++;
       if (tuxClicks >= 4) {
-        alert("🐧 You found the hidden penguin party!");
+        terminalOutput.textContent = "🐧 You found the hidden penguin party!";
         tuxClicks = 0;
       } else {
-        alert("🐧 Tux says: Stay chill, hacker.");
+        terminalOutput.textContent = "🐧 Tux says: Stay chill, hacker.";
       }
     });
 
@@ -319,6 +354,15 @@
         setTimeout(() => msg.style.display = 'none', 3000);
       }
     });
+
+    function playSound() {
+      const sound = document.getElementById('pingSound');
+      sound.play().catch(e => console.warn('Sound playback failed:', e));
+    }
+
+    document.getElementById('pingSound').onerror = () => {
+      console.warn('Failed to load sound file.');
+    };
   </script>
 </body>
 </html>

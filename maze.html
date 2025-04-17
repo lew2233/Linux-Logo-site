@@ -5,21 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Tux Maze</title>
   <style>
+    :root {
+      --bg: #000;
+      --fg: #00fff7;
+      --highlight: #00ff00;
+      --button-bg: #00fff7;
+      --button-hover: #00ccff;
+      --text-shadow: 0 0 10px var(--fg);
+    }
+
+    body.light {
+      --bg: #fff;
+      --fg: #222;
+      --highlight: #00cc00;
+      --button-bg: #e0e0e0;
+      --button-hover: #cfcfcf;
+      --text-shadow: none;
+    }
+
     body {
       margin: 0;
       font-family: 'Courier New', monospace;
-      background: #000;
-      color: #00fff7;
+      background: var(--bg);
+      color: var(--fg);
       display: flex;
       flex-direction: column;
       align-items: center;
       touch-action: none;
       overflow: hidden;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       margin: 20px 0 10px;
-      text-shadow: 0 0 10px #00fff7;
+      text-shadow: var(--text-shadow);
     }
 
     .top-bar {
@@ -34,16 +53,16 @@
       font-size: 1rem;
       border: none;
       border-radius: 10px;
-      background: #00fff7;
-      color: #000;
+      background: var(--button-bg);
+      color: var(--bg);
       cursor: pointer;
-      box-shadow: 0 0 10px #00fff7;
+      box-shadow: 0 0 10px var(--button-bg);
       transition: 0.2s;
     }
 
     .back-link:hover {
-      background: #00ccff;
-      box-shadow: 0 0 20px #00fff7;
+      background: var(--button-hover);
+      box-shadow: 0 0 20px var(--fg);
       transform: scale(1.05);
     }
 
@@ -58,22 +77,22 @@
       width: 40px;
       height: 40px;
       background: #111;
-      border: 1px solid #00fff720;
+      border: 1px solid var(--fg)20;
       transition: background 0.3s;
     }
 
     .wall {
-      background: #00fff7;
+      background: var(--fg);
     }
 
     .player {
-      background-image: url('/assets/Tux.svg');
+      background-image: url('/assets/tux.svg');
       background-size: cover;
       animation: bounce 0.2s;
     }
 
     .goal {
-      background: #00ff00;
+      background: var(--highlight);
     }
 
     @keyframes bounce {
@@ -88,16 +107,16 @@
       margin: 10px;
       border: none;
       border-radius: 10px;
-      background: #00fff7;
-      color: #000;
+      background: var(--button-bg);
+      color: var(--bg);
       cursor: pointer;
-      box-shadow: 0 0 10px #00fff7;
+      box-shadow: 0 0 10px var(--button-bg);
       transition: 0.2s;
     }
 
     .game-btn:hover {
-      background: #00ccff;
-      box-shadow: 0 0 20px #00fff7;
+      background: var(--button-hover);
+      box-shadow: 0 0 20px var(--fg);
       transform: scale(1.05);
     }
 
@@ -111,7 +130,7 @@
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.95);
-      color: #00ff88;
+      color: var(--highlight);
       font-size: 2rem;
       justify-content: center;
       align-items: center;
@@ -120,13 +139,17 @@
     }
 
     @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
       .maze { transform: scale(0.85); }
+      .cell { width: 30px; height: 30px; }
+      .game-btn { font-size: 0.9rem; padding: 8px 15px; }
+      .status { font-size: 1rem; }
     }
   </style>
 </head>
 <body>
   <div class="top-bar">
-    <button class="back-link" onclick="window.location.href='minigames.html'">← Back to Arcade</button>
+    <button class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'">← Back to Arcade</button>
   </div>
   <h1>🧩 Tux Maze</h1>
   <div id="status" class="status">
@@ -135,19 +158,19 @@
   <div id="maze" class="maze"></div>
 
   <div style="display: flex; flex-direction: column; align-items: center;">
-    <div><button class="game-btn" onclick="movePlayer(0, -1)">↑</button></div>
+    <div><button class="game-btn" onclick="movePlayer(0, -1)" aria-label="Move up">↑</button></div>
     <div>
-      <button class="game-btn" onclick="movePlayer(-1, 0)">←</button>
-      <button class="game-btn" onclick="movePlayer(0, 1)">↓</button>
-      <button class="game-btn" onclick="movePlayer(1, 0)">→</button>
+      <button class="game-btn" onclick="movePlayer(-1, 0)" aria-label="Move left">←</button>
+      <button class="game-btn" onclick="movePlayer(0, 1)" aria-label="Move down">↓</button>
+      <button class="game-btn" onclick="movePlayer(1, 0)" aria-label="Move right">→</button>
     </div>
   </div>
 
-  <button class="game-btn" onclick="nextLevel()">Next Level</button>
+  <button class="game-btn" onclick="nextLevel()" aria-label="Next level">Next Level</button>
 
   <div id="win-screen" class="status" style="display:none;flex;">
     <h2>🏆 You beat all the levels!</h2>
-    <button class="game-btn" onclick="restartGame()">Restart</button>
+    <button class="game-btn" onclick="restartGame()" aria-label="Restart game">Restart</button>
   </div>
 
   <script>
@@ -188,7 +211,7 @@
         "# ####   #",
         "#G########"
       ],
-      [ // New Complex Maze
+      [
         "##############",
         "#P   #      G#",
         "# # ### # # ##",
@@ -256,7 +279,6 @@
           moveCount++;
           moveCountEl.textContent = moveCount;
           drawMaze(levels[currentLevel]);
-          playMoveSound();
         }
       }
     }
@@ -272,7 +294,6 @@
       moveCount = 0;
       moveCountEl.textContent = moveCount;
       resetTimer();
-      if (isWin) playVictorySound();
     }
 
     function restartGame() {
@@ -327,16 +348,15 @@
 
     document.body.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
-    function playMoveSound() {
-      new Audio('https://actions.google.com/sounds/v1/cartoon/pop.ogg').play();
-    }
-
-    function playVictorySound() {
-      new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg').play();
-    }
-
-    drawMaze(levels[currentLevel]);
-    resetTimer();
+    window.onload = () => {
+      // Apply dark mode from localStorage
+      const isLight = localStorage.getItem('darkMode') === 'true';
+      if (isLight) {
+        document.body.classList.add('light');
+      }
+      drawMaze(levels[currentLevel]);
+      resetTimer();
+    };
   </script>
 </body>
 </html>

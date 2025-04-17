@@ -101,7 +101,7 @@
 </head>
 <body>
   <h1>🏓 Linux Pong</h1>
-  <div class="scoreboard" id="scoreboard">0 : 0 | High Score: 0</div>
+  <div class="scoreboard" id="scoreboard">0 : 0 | High Score: 0 | Level: 1</div>
   <canvas id="pongCanvas" width="600" height="300"></canvas>
   <div class="controls">
     <button class="control-btn" onclick="toggleSound()" aria-label="Toggle sound">Mute</button>
@@ -121,13 +121,31 @@
     let playerY = (canvas.height - paddleHeight) / 2;
     let aiY = (canvas.height - paddleHeight) / 2;
     let ballX = canvas.width / 2, ballY = canvas.height / 2;
-    let ballSpeedX = 5, ballSpeedY = 3;
+    let ballSpeedX = 3, ballSpeedY = 2; // Start at Level 1 speed
     let playerScore = 0, aiScore = 0;
     let highScore = parseInt(localStorage.getItem('pongHighScore')) || 0;
     let isMuted = false;
+    let level = 1;
+    let aiSpeed = 0.05; // Start at Level 1 AI responsiveness
 
     const bounceSound = document.getElementById('bounce');
     const scoreSound = document.getElementById('score');
+
+    function updateLevel() {
+      if (playerScore >= 6 && level < 3) {
+        level = 3;
+        ballSpeedX = ballSpeedX > 0 ? 5 : -5; // Match current speed in previous version
+        ballSpeedY = ballSpeedY > 0 ? 3 : -3;
+        aiSpeed = 0.1;
+        console.log('Level 3 reached: ballSpeedX=', ballSpeedX, 'ballSpeedY=', ballSpeedY, 'aiSpeed=', aiSpeed);
+      } else if (playerScore >= 3 && level < 2) {
+        level = 2;
+        ballSpeedX = ballSpeedX > 0 ? 4 : -4;
+        ballSpeedY = ballSpeedY > 0 ? 2.5 : -2.5;
+        aiSpeed = 0.075;
+        console.log('Level 2 reached: ballSpeedX=', ballSpeedX, 'ballSpeedY=', ballSpeedY, 'aiSpeed=', aiSpeed);
+      }
+    }
 
     function resizeCanvas() {
       canvas.width = Math.min(window.innerWidth * 0.9, 600);
@@ -160,11 +178,12 @@
     }
 
     function updateScore() {
+      updateLevel(); // Check if we need to increase the level
       if (playerScore > highScore) {
         highScore = playerScore;
         localStorage.setItem('pongHighScore', highScore);
       }
-      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore}`;
+      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore} | Level: ${level}`;
     }
 
     function update() {
@@ -198,15 +217,15 @@
         if (!isMuted) scoreSound.play().catch(e => console.warn('Score sound failed:', e));
       }
 
-      aiY += (ballY - (aiY + paddleHeight / 2)) * 0.1;
+      aiY += (ballY - (aiY + paddleHeight / 2)) * aiSpeed; // Use aiSpeed for responsiveness
       updateScore();
     }
 
     function resetBall() {
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
-      ballSpeedX = -ballSpeedX;
-      ballSpeedY = (Math.random() * 6 - 3);
+      ballSpeedX = Math.abs(ballSpeedX) * (ballSpeedX > 0 ? -1 : 1); // Maintain direction based on level
+      ballSpeedY = (Math.random() * 2 * (level === 3 ? 3 : level === 2 ? 2.5 : 2)) - (level === 3 ? 3 : level === 2 ? 2.5 : 2);
     }
 
     function loop() {
@@ -248,7 +267,7 @@
       const isLight = localStorage.getItem('darkMode') === 'true';
       if (isLight) document.body.classList.add('light');
       resizeCanvas();
-      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore}`;
+      document.getElementById("scoreboard").textContent = `${playerScore} : ${aiScore} | High Score: ${highScore} | Level: ${level}`;
       console.log('Initial theme. Light mode:', isLight);
       loop();
     };

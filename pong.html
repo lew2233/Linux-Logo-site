@@ -16,7 +16,7 @@
 
     body.light {
       --bg: #fff;
-      --fg: #222;
+      --fg: #000;
       --button-bg: #e0e0e0;
       --button-hover: #cfcfcf;
       --canvas-bg: #ccc;
@@ -179,6 +179,7 @@
   <div class="controls">
     <button class="control-btn" onclick="togglePause()" aria-label="Toggle pause">Pause</button>
     <button class="control-btn" onclick="toggleSound()" aria-label="Toggle sound">Mute</button>
+    <button class="control-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
   </div>
 
   <div class="instructions">
@@ -228,7 +229,7 @@
     window.addEventListener("resize", resizeCanvas);
 
     function drawPaddle(x, y) {
-      ctx.fillStyle = "var(--fg)";
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
       ctx.fillRect(x, y, paddleWidth, paddleHeight);
       console.log('Drawing paddle at:', x, y);
     }
@@ -236,7 +237,7 @@
     function drawBall(x, y) {
       ctx.beginPath();
       ctx.arc(x, y, ballSize, 0, Math.PI * 2);
-      ctx.fillStyle = "var(--fg)";
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim();
       ctx.fill();
       ctx.closePath();
       console.log('Drawing ball at:', x, y);
@@ -291,10 +292,19 @@
       hasInteracted = true;
     }
 
+    function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
+      document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
+      hasInteracted = true;
+      console.log('Theme toggled. Light mode:', !isLightMode);
+    }
+
     function draw() {
       if (isGameOver || isPaused) return;
 
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      const isLightMode = document.body.classList.contains('light');
+      ctx.fillStyle = isLightMode ? '#ccc' : '#111'; // Match --canvas-bg values
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       drawPaddle(0, playerY);
@@ -394,6 +404,7 @@
         document.body.classList.add('light');
       }
       resizeCanvas();
+      console.log('Initial theme. Light mode:', isLight);
     };
 
     draw();

@@ -2,33 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ultimate Linux Webzone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="description" content="Welcome to the Ultimate Linux Webzone! Explore Linux-themed minigames and fun facts.">
+  <meta name="keywords" content="Linux, Webzone, minigames, Tux, terminal">
+  <title>🐧 Ultimate Linux Webzone</title>
   <style>
     :root {
-      --bg-color: #0f0f0f;
-      --text-color: #00ffcc;
+      --bg: #0f0f0f;
+      --fg: #00fff7;
+      --highlight: #ffeb3b;
+      --text-shadow: 0 0 10px var(--fg);
     }
 
     body.light {
-      --bg-color: #ffffff;
-      --text-color: #000000;
+      --bg: #fff;
+      --fg: #222;
+      --highlight: #ff5722;
+      --text-shadow: none;
     }
 
     html, body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background-color: var(--bg);
+      color: var(--fg);
       font-family: 'Courier New', monospace;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      transition: background-color 0.5s ease, color 0.5s ease;
-    }
-
-    .no-glitch h1 {
-      animation: none;
+      transition: background 0.3s, color 0.3s;
     }
 
     #particles-js {
@@ -45,14 +47,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 80px 20px 60px;
+      padding: 20px;
       text-align: center;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 10px;
-      color: var(--text-color);
+      margin: 10px 0;
+      text-shadow: var(--text-shadow);
       animation: glitch 1s infinite;
     }
 
@@ -62,11 +64,15 @@
       40% { text-shadow: 2px -2px #ff00c8; }
       60% { text-shadow: -2px 2px #00fff7; }
       80% { text-shadow: 2px 2px #ff00c8; }
-      100% { text-shadow: 0 0 var(--text-color); }
+      100% { text-shadow: 0 0 var(--fg); }
+    }
+
+    .no-glitch h1 {
+      animation: none;
     }
 
     img {
-      width: 180px;
+      width: 60px;
       margin: 20px 0;
       cursor: pointer;
       transition: transform 0.3s ease;
@@ -83,7 +89,7 @@
 
     .terminal {
       font-size: 1.3rem;
-      margin-bottom: 10px;
+      margin: 10px 0;
       height: 1.5rem;
       white-space: nowrap;
       overflow: hidden;
@@ -98,107 +104,95 @@
     }
 
     input[type="text"] {
-      background: black;
-      border: 1px solid var(--text-color);
-      color: var(--text-color);
+      background: var(--bg);
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 8px;
       font-size: 1rem;
       width: 300px;
-      margin-top: 10px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
     }
 
     button, select {
-      margin: 5px;
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 10px 15px;
-      background-color: var(--text-color);
-      color: var(--bg-color);
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
       font-size: 1rem;
-      transition: transform 0.2s ease;
-      z-index: 2;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      margin: 5px;
+      transition: transform 0.2s ease, color 0.2s, border-color 0.2s;
     }
 
     button:hover, select:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
       transform: scale(1.1);
     }
 
-    #terminalOutput {
-      margin-top: 10px;
-      font-size: 1.1rem;
-      max-width: 600px;
-      min-height: 1.5rem;
-      color: var(--text-color);
-    }
-
-    #fact {
-      margin-top: 15px;
+    #terminalOutput, #fact {
+      margin: 10px 0;
       font-size: 1.1rem;
       max-width: 600px;
       transition: opacity 0.5s ease;
     }
 
+    .global-score {
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
     .secret {
       display: none;
-      margin-top: 20px;
+      margin: 20px 0;
       color: #ff00c8;
       font-size: 1.2rem;
     }
 
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
-      input[type="text"], button, select { width: 90%; font-size: 1rem; }
-    }
-
-    .dark-mode-toggle {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      background-color: #444;
-      border-radius: 30px;
-      padding: 5px 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    .dark-mode-toggle .penguin {
-      width: 30px;
-      height: 30px;
-      transition: transform 0.5s ease;
-    }
-
-    .dark-mode-toggle.light .penguin {
-      transform: rotateY(180deg);
+      input[type="text"], button, select { width: 90%; font-size: 0.9rem; }
+      img { width: 50px; }
+      .controls { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
   <div class="container">
-    <h1>🔥 Ultimate Linux Webzone 🔥</h1>
-    <img src="/assets/tux.png" id="tux" alt="Tux Linux Logo">
+    <h1>🐧 Ultimate Linux Webzone</h1>
+    <img src="/assets/tux.svg" id="tux" alt="Tux Linux Logo" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
 
     <div class="terminal"><span id="terminalText"></span><span class="blinker">|</span></div>
     <input type="text" id="commandInput" placeholder="Type a command like: uname -a" aria-label="Terminal command input" />
     <div id="terminalOutput" aria-live="polite"></div>
-    
-    <button id="factBtn">Get Linux Fun Fact</button>
-    <button id="changeBgBtn">Change Background</button>
-    <button id="glitchToggleBtn">Disable Glitch</button>
-    <button onclick="window.location.href='/minigames.html'">🎮 Mini Games</button>
-    <select id="colorSelect" aria-label="Select background color">
-      <option value="#0f0f0f">Black</option>
-      <option value="#1e3a8a">Navy Blue</option>
-      <option value="#4b0082">Indigo</option>
-      <option value="#006400">Dark Green</option>
-      <option value="#8b4513">Saddle Brown</option>
-    </select>
 
-    <div class="dark-mode-toggle" id="darkModeBtn" role="button" aria-label="Toggle dark mode">
-      <img src="/assets/tux.png" class="penguin" id="penguinIcon" alt="Tux Linux Logo">
-      <span>Toggle Dark Mode</span>
+    <div class="controls">
+      <button id="factBtn" aria-label="Get Linux fun fact">Get Linux Fun Fact</button>
+      <button id="changeBgBtn" aria-label="Change background randomly">Change Background</button>
+      <button id="glitchToggleBtn" aria-label="Toggle glitch effect">Disable Glitch</button>
+      <button onclick="window.location.href='/minigames.html'" aria-label="Go to minigames">🎮 Mini Games</button>
+      <select id="colorSelect" aria-label="Select background color">
+        <option value="#0f0f0f">Black</option>
+        <option value="#1e3a8a">Navy Blue</option>
+        <option value="#4b0082">Indigo</option>
+        <option value="#006400">Dark Green</option>
+        <option value="#8b4513">Saddle Brown</option>
+      </select>
+      <button id="darkModeBtn" class="control-btn" aria-label="Toggle dark mode">Toggle Theme</button>
     </div>
 
+    <div class="global-score">Global Score: <span id="global-score">0</span></div>
     <p id="fact" aria-live="polite"></p>
     <p class="secret" id="easterEggMsg">💚 LINUX IS LIFE 💚</p>
   </div>
@@ -211,22 +205,26 @@
       const isLight = localStorage.getItem('darkMode') === 'true';
       if (isLight) {
         document.body.classList.add('light');
-        document.getElementById('darkModeBtn').classList.add('light');
       }
       const isGlitchDisabled = localStorage.getItem('disableGlitch') === 'true';
       if (isGlitchDisabled) document.body.classList.add('no-glitch');
 
-      // Verify asset loading
-      const tuxImg = document.getElementById('tux');
-      tuxImg.onerror = () => console.warn('Failed to load Tux image at /assets/tux.png');
+      // Global score calculation
+      let globalScore = 0;
+      const games = ['pongHighScore', 'tuxRunnerHighScore', 'terminalTriviaHighScore', 'clickerHighScore'];
+      games.forEach(game => {
+        globalScore += parseInt(localStorage.getItem(game)) || 0;
+      });
+      document.getElementById('global-score').textContent = globalScore;
+      console.log('Initial global score:', globalScore);
     };
 
-    const darkBtn = document.getElementById('darkModeBtn');
-    darkBtn.onclick = () => {
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    darkModeBtn.onclick = () => {
       const isLightMode = document.body.classList.contains('light');
       document.body.classList.toggle('light');
-      darkBtn.classList.toggle('light');
       localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
     };
 
     try {

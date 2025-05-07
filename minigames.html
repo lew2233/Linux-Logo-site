@@ -2,35 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini Games Arcade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="description" content="Play Linux-themed mini-games in the Ultimate Linux Webzone arcade!">
+  <meta name="keywords" content="Linux, Mini Games, Arcade, Tux">
+  <title>🕹️ Mini Games Arcade</title>
   <style>
     :root {
-      --bg-color: #000;
-      --text-color: #00fff7;
+      --bg: #000;
+      --fg: #00fff7;
+      --text-shadow: 0 0 10px var(--fg);
     }
 
     body.light {
-      --bg-color: #ffffff;
-      --text-color: #000000;
+      --bg: #fff;
+      --fg: #222;
+      --text-shadow: none;
     }
 
     body {
       margin: 0;
-      background: var(--bg-color);
-      color: var(--text-color);
+      background: var(--bg);
+      color: var(--fg);
       font-family: 'Courier New', monospace;
       overflow-x: hidden;
       position: relative;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      transition: background 0.3s, color 0.3s;
     }
 
     .grid-bg {
-      background-image: linear-gradient(var(--text-color)20 1px, transparent 1px),
-                        linear-gradient(90deg, var(--text-color)20 1px, transparent 1px);
+      background-image: linear-gradient(var(--fg)20 1px, transparent 1px),
+                        linear-gradient(90deg, var(--fg)20 1px, transparent 1px);
       background-size: 40px 40px;
-      height: 100vh;
+      min-height: 100vh;
       animation: gridMove 10s linear infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
 
     @keyframes gridMove {
@@ -39,52 +47,88 @@
     }
 
     h1 {
+      font-size: 2.5rem;
+      margin: 10px 0;
+      text-shadow: var(--text-shadow);
       text-align: center;
-      font-size: 3rem;
-      margin: 30px 0;
-      text-shadow: 0 0 10px var(--text-color), 0 0 20px var(--text-color);
     }
 
     .game-list {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      margin-top: 50px;
+      gap: 10px;
+      margin-top: 20px;
     }
 
     .game-btn {
-      padding: 15px 30px;
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
+      padding: 10px 20px;
       font-size: 1.2rem;
-      color: var(--bg-color);
-      background: var(--text-color);
-      border: none;
-      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      box-shadow: 0 0 10px var(--text-color);
+      font-family: 'Courier New', monospace;
+      transition: transform 0.2s, color 0.2s, border-color 0.2s;
+      width: 200px;
+      text-align: center;
     }
 
     .game-btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
       transform: scale(1.05);
-      background: #00ccff;
-      box-shadow: 0 0 20px var(--text-color), 0 0 30px var(--text-color);
+    }
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
+      padding: 5px 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      transition: transform 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .control-btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
+      transform: scale(1.05);
+    }
+
+    .global-score {
+      font-size: 1.2rem;
+      margin: 10px 0;
+      text-align: center;
     }
 
     .back-link {
-      margin-top: 40px;
-      text-align: center;
-      color: var(--text-color);
-      text-decoration: underline;
-      cursor: pointer;
+      margin-top: 20px;
+      color: var(--fg);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--fg);
       font-size: 1.1rem;
+      cursor: pointer;
+      text-align: center;
     }
 
-    .penguin {
+    .back-link:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
+    }
+
+    .tux {
       width: 60px;
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
+      margin-top: 20px;
       animation: bounce 2s infinite ease-in-out;
     }
 
@@ -94,36 +138,65 @@
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .game-btn { font-size: 1rem; padding: 10px 20px; }
+      h1 { font-size: 1.8rem; }
+      .game-btn { font-size: 1rem; padding: 8px 15px; width: 180px; }
+      .control-btn { font-size: 0.9rem; padding: 4px 8px; }
+      .global-score { font-size: 1rem; }
+      .back-link { font-size: 0.9rem; }
+      .tux { width: 50px; }
     }
   </style>
 </head>
 <body>
   <div class="grid-bg">
     <h1>🕹️ Mini Games Arcade</h1>
+    <div class="global-score">Global Score: <span id="global-score">0</span></div>
 
     <div class="game-list">
-      <button class="game-btn" onclick="window.location.href='/pong.html'">🎯 Play Pong</button>
-      <button class="game-btn" onclick="window.location.href='/Clicker.html'">🐧 Linux Clicker</button>
-      <button class="game-btn" onclick="window.location.href='/trivia.html'">🧠 Terminal Trivia</button>
-      <button class="game-btn" onclick="window.location.href='/maze.html'">🧩 Tux Maze</button>
-      <button class="game-btn" onclick="window.location.href='/minesweeper.html'">🧨 Minesweeper</button>
-      <button class="game-btn" onclick="window.location.href='/runner.html'">🏃‍♂️ Tux Runner</button>
+      <button class="game-btn" onclick="window.location.href='/pong.html'" aria-label="Play Pong">🎯 Play Pong</button>
+      <button class="game-btn" onclick="window.location.href='/Clicker.html'" aria-label="Play Linux Clicker">🐧 Linux Clicker</button>
+      <button class="game-btn" onclick="window.location.href='/trivia.html'" aria-label="Play Terminal Trivia">🧠 Terminal Trivia</button>
+      <button class="game-btn" onclick="window.location.href='/maze.html'" aria-label="Play Tux Maze">🧩 Tux Maze</button>
+      <button class="game-btn" onclick="window.location.href='/minesweeper.html'" aria-label="Play Minesweeper">🧨 Minesweeper</button>
+      <button class="game-btn" onclick="window.location.href='/runner.html'" aria-label="Play Tux Runner">🏃‍♂️ Tux Runner</button>
     </div>
 
-    <div class="back-link" onclick="window.location.href='/index.html'">← Back to Webzone</div>
+    <div class="controls">
+      <button class="control-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
+    </div>
 
-    <img src="/assets/tux.svg" alt="Tux Penguin" class="penguin" onerror="console.warn('Failed to load Tux image at /assets/tux.svg')" />
+    <div class="back-link" onclick="window.location.href='/index.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/index.html'" aria-label="Back to webzone">← Back to Webzone</div>
+
+    <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" loading="lazy" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
   </div>
 
   <script>
+    function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
+      document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
+    }
+
     window.onload = () => {
-      // Apply dark mode from localStorage
       const isLight = localStorage.getItem('darkMode') === 'true';
-      if (isLight) {
-        document.body.classList.add('light');
-      }
+      if (isLight) document.body.classList.add('light');
+
+      // Global score calculation
+      let globalScore = 0;
+      const games = ['pongHighScore', 'tuxRunnerHighScore', 'terminalTriviaHighScore', 'clickerHighScore', 'mazeBestTime', 'mazeBestMoves', 'minesweeperWins'];
+      games.forEach(game => {
+        const score = parseInt(localStorage.getItem(game)) || 0;
+        if (game === 'mazeBestTime' || game === 'mazeBestMoves') {
+          // For maze, only add if the score is not Infinity (i.e., a level was completed)
+          if (score !== Infinity) globalScore += score;
+        } else {
+          globalScore += score;
+        }
+      });
+      document.getElementById('global-score').textContent = globalScore;
+      console.log('Initial global score:', globalScore);
+      console.log('Initial theme. Light mode:', isLight);
     };
   </script>
 </body>

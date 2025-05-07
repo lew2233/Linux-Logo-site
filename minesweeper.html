@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Retro Minesweeper</title>
+  <meta name="description" content="Play Retro Minesweeper with a Linux twist! Clear the board without hitting a mine.">
+  <meta name="keywords" content="Linux, Minesweeper, Tux, Game">
+  <title>💣 Retro Minesweeper</title>
   <style>
     :root {
       --bg: #000;
       --fg: #00fff7;
-      --button-bg: #00fff7;
-      --button-hover: #00ccff;
       --cell-bg: #222;
       --cell-revealed: #444;
       --text-shadow: 0 0 10px var(--fg);
@@ -18,8 +18,6 @@
     body.light {
       --bg: #fff;
       --fg: #222;
-      --button-bg: #e0e0e0;
-      --button-hover: #cfcfcf;
       --cell-bg: #ccc;
       --cell-revealed: #aaa;
       --text-shadow: none;
@@ -38,8 +36,8 @@
     }
 
     h1 {
-      margin: 20px;
-      font-size: 3rem;
+      font-size: 2.5rem;
+      margin: 10px 0;
       text-shadow: var(--text-shadow);
     }
 
@@ -63,7 +61,6 @@
       cursor: pointer;
       border: 2px solid var(--fg);
       transition: 0.2s;
-      box-shadow: 0 0 5px var(--fg)70;
     }
 
     .cell.revealed {
@@ -84,54 +81,88 @@
     .game-over {
       font-size: 1.5rem;
       color: #ff0000;
-      margin-top: 20px;
+      margin: 10px 0;
     }
 
     .win {
       font-size: 1.5rem;
       color: #00ff00;
-      margin-top: 20px;
+      margin: 10px 0;
+    }
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     button {
-      padding: 15px 30px;
-      font-size: 1.5rem;
-      margin: 10px;
-      border: none;
-      border-radius: 10px;
-      background: var(--button-bg);
-      color: var(--bg);
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
+      padding: 10px 20px;
+      font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 0 10px var(--button-bg);
-      transition: 0.2s;
+      font-family: 'Courier New', monospace;
+      margin: 5px;
+      transition: transform 0.2s, color 0.2s, border-color 0.2s;
     }
 
     button:hover {
-      background: var(--button-hover);
-      box-shadow: 0 0 20px var(--fg);
+      color: #ff00c8;
+      border-color: #ff00c8;
       transform: scale(1.05);
     }
 
     .status {
       font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .back-link {
+      margin-top: 10px;
+      color: var(--fg);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--fg);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .back-link:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
+    }
+
+    .tux {
+      width: 60px;
       margin-top: 10px;
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
+      h1 { font-size: 1.8rem; }
       .board { grid-template-columns: repeat(10, 35px); grid-template-rows: repeat(10, 35px); }
       .cell { width: 35px; height: 35px; font-size: 16px; }
-      button { font-size: 1.2rem; padding: 10px 20px; }
+      button { font-size: 0.9rem; padding: 8px 15px; }
       .status { font-size: 1rem; }
+      .tux { width: 50px; }
     }
   </style>
 </head>
 <body>
-  <h1>Retro Minesweeper</h1>
+  <h1>💣 Retro Minesweeper</h1>
+  <div id="status" class="status">
+    <p>Wins: <span id="win-count">0</span> | Flags: <span id="flag-count">0</span></p>
+  </div>
   <div id="board" class="board"></div>
-  <button onclick="startGame()" aria-label="Start new game">Start New Game</button>
-  <button onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">Back to Arcade</button>
-  <div id="status" class="status"></div>
+  <div class="controls">
+    <button onclick="startGame()" aria-label="Start new game">Start New Game</button>
+    <button onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
+  </div>
+  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" loading="lazy" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
 
   <script>
     const rows = 10;
@@ -142,6 +173,11 @@
     let gameOver = false;
     let revealedCount = 0;
     let flaggedCount = 0;
+    let winCount = parseInt(localStorage.getItem('minesweeperWins')) || 0;
+    let touchStartTime;
+
+    const winCountEl = document.getElementById('win-count');
+    const flagCountEl = document.getElementById('flag-count');
 
     function createBoard() {
       board = [];
@@ -211,6 +247,9 @@
 
       if (revealedCount === rows * cols - mineCount) {
         gameOver = true;
+        winCount++;
+        localStorage.setItem('minesweeperWins', winCount);
+        winCountEl.textContent = winCount;
         displayWin();
       }
       renderBoard();
@@ -220,6 +259,7 @@
       if (gameOver || board[row][col].revealed) return;
       board[row][col].flagged = !board[row][col].flagged;
       flaggedCount = board.flat().filter(cell => cell.flagged).length;
+      flagCountEl.textContent = flaggedCount;
       renderBoard();
     }
 
@@ -245,11 +285,30 @@
             cellEl.textContent = "🚩";
           }
 
-          cellEl.onclick = () => revealCell(rowIndex, colIndex);
+          cellEl.onclick = (e) => {
+            e.preventDefault();
+            revealCell(rowIndex, colIndex);
+          };
           cellEl.oncontextmenu = (e) => {
             e.preventDefault();
             flagCell(rowIndex, colIndex);
           };
+
+          // Touch support for reveal and flag
+          cellEl.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartTime = Date.now();
+          }, { passive: false });
+
+          cellEl.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchDuration = Date.now() - touchStartTime;
+            if (touchDuration > 500) {
+              flagCell(rowIndex, colIndex);
+            } else {
+              revealCell(rowIndex, colIndex);
+            }
+          }, { passive: false });
 
           boardEl.appendChild(cellEl);
         });
@@ -258,12 +317,12 @@
 
     function displayGameOver() {
       const statusEl = document.getElementById("status");
-      statusEl.innerHTML = `<p class="game-over">Game Over! 💥</p>`;
+      statusEl.innerHTML = `<p class="game-over">Game Over! 💥</p><p>Wins: <span id="win-count">${winCount}</span> | Flags: <span id="flag-count">${flaggedCount}</span></p>`;
     }
 
     function displayWin() {
       const statusEl = document.getElementById("status");
-      statusEl.innerHTML = `<p class="win">You Win! 🎉</p>`;
+      statusEl.innerHTML = `<p class="win">You Win! 🎉</p><p>Wins: <span id="win-count">${winCount}</span> | Flags: <span id="flag-count">${flaggedCount}</span></p>`;
     }
 
     function startGame() {
@@ -273,18 +332,27 @@
       gameOver = false;
       revealedCount = 0;
       flaggedCount = 0;
+      flagCountEl.textContent = flaggedCount;
       renderBoard();
       const statusEl = document.getElementById("status");
-      statusEl.innerHTML = "";
+      statusEl.innerHTML = `<p>Wins: <span id="win-count">${winCount}</span> | Flags: <span id="flag-count">${flaggedCount}</span></p>`;
+    }
+
+    function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
+      document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
     }
 
     window.onload = () => {
-      // Apply dark mode from localStorage
       const isLight = localStorage.getItem('darkMode') === 'true';
-      if (isLight) {
-        document.body.classList.add('light');
-      }
+      if (isLight) document.body.classList.add('light');
+      winCountEl.textContent = winCount;
+      flagCountEl.textContent = flaggedCount;
       startGame();
+      console.log('Initial theme. Light mode:', isLight);
+      console.log('Initial win count:', winCount);
     };
   </script>
 </body>

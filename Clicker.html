@@ -11,7 +11,7 @@
       --highlight: #ffeb3b;
       --button-bg: #00fff7;
       --button-hover: #00ccff;
-      --text-shadow: 0 0 10px var(--fg), 0 0 20px var(--fg);
+      --text-shadow: 0 0 10px var(--fg);
     }
 
     body.light {
@@ -28,8 +28,12 @@
       background: var(--bg);
       color: var(--fg);
       font-family: 'Courier New', monospace;
-      text-align: center;
-      padding-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      padding: 20px;
       transition: background 0.3s, color 0.3s;
       -webkit-user-select: none;
       user-select: none;
@@ -39,22 +43,24 @@
     h1 {
       font-size: 2.5rem;
       text-shadow: var(--text-shadow);
+      margin: 10px 0;
     }
 
-    .score, .level, .shop, .prestige {
+    .score, .high-score, .level, .shop, .prestige {
       font-size: 1.3rem;
-      margin: 20px 0;
+      margin: 10px 0;
     }
 
-    .score span, .prestige span {
+    .score span, .high-score span, .prestige span {
       color: var(--highlight);
     }
 
     .tux {
-      width: 150px;
+      width: 60px;
       cursor: pointer;
       transition: transform 0.2s;
       touch-action: manipulation;
+      margin: 20px 0;
     }
 
     .tux:active {
@@ -62,38 +68,42 @@
     }
 
     .back-link {
-      margin-top: 40px;
+      margin-top: 10px;
       color: var(--fg);
-      text-decoration: underline;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--fg);
       font-size: 1rem;
       cursor: pointer;
-      display: inline-block;
-      margin-bottom: 50px;
+      text-align: center;
     }
 
     .back-link:hover {
-      text-decoration: none;
-      color: var(--highlight);
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     .btn {
-      background: var(--button-bg);
-      color: var(--bg);
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 10px 20px;
       font-size: 1rem;
-      border: none;
-      border-radius: 10px;
       cursor: pointer;
+      font-family: 'Courier New', monospace;
       margin-top: 10px;
       transition: all 0.2s ease-in-out;
-      box-shadow: 0 0 10px var(--button-bg);
       touch-action: manipulation;
+    }
+
+    .btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     .btn:active {
       transform: scale(1.05);
-      background: var(--button-hover);
-      box-shadow: 0 0 20px var(--fg), 0 0 30px var(--fg);
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     .click-effect {
@@ -109,55 +119,64 @@
       100% { opacity: 0; transform: translateY(-50px); }
     }
 
-    .theme-toggle {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .control-btn {
       background: none;
-      color: var(--fg);
       border: 2px solid var(--fg);
-      border-radius: 8px;
+      color: var(--fg);
       padding: 5px 10px;
-      font-size: 0.8rem;
+      font-size: 1rem;
       cursor: pointer;
+      font-family: 'Courier New', monospace;
       touch-action: manipulation;
     }
 
-    .theme-toggle:hover {
-      background: var(--fg);
-      color: var(--bg);
+    .control-btn:hover {
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .score, .level, .shop, .prestige { font-size: 1.1rem; }
-      .tux { width: 120px; }
+      h1 { font-size: 1.8rem; }
+      .score, .high-score, .level, .shop, .prestige { font-size: 1.1rem; }
+      .tux { width: 50px; }
       .btn { font-size: 0.9rem; padding: 8px 15px; }
+      .control-btn { font-size: 0.9rem; padding: 4px 8px; }
+      .back-link { font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-
   <h1>🐧 Linux Clicker</h1>
 
   <div class="score">Points: <span id="points">0</span></div>
+  <div class="high-score">High Score: <span id="high-score">0</span></div>
   <div class="level">Points Per Click: <span id="ppc">1</span></div>
   <div class="prestige">Prestige Points: <span id="prestige">0</span></div>
 
-  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" onerror="console.warn('Failed to load Tux image at /assets/tux.svg')" />
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" onclick="addPoints(event)" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" aria-label="Click Tux to earn points" />
 
   <div class="shop">
     <p>Upgrade Click Power</p>
-    <button class="btn" onclick="buyUpgrade()">Buy Upgrade (<span id="upgrade-cost">10</span> pts)</button>
+    <button class="btn" onclick="buyUpgrade()" aria-label="Buy upgrade">Buy Upgrade (<span id="upgrade-cost">10</span> pts)</button>
   </div>
 
   <div class="prestige">
     <p>Reset for +1 Prestige Point (Cost: <span id="prestige-cost">100</span> pts)</p>
-    <button class="btn" onclick="prestige()">Prestige</button>
+    <button class="btn" onclick="prestige()" aria-label="Prestige">Prestige</button>
   </div>
 
-  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'">← Back to Arcade</div>
+  <div class="controls">
+    <button class="control-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
+  </div>
+
+  <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
 
   <script>
     let points = 0;
@@ -166,8 +185,10 @@
     let upgradeCost = 10;
     let prestigePoints = 0;
     let prestigeCost = 100;
+    let highScore = parseInt(localStorage.getItem('clickerHighScore')) || 0;
 
     const pointEl = document.getElementById('points');
+    const highScoreEl = document.getElementById('high-score');
     const ppcEl = document.getElementById('ppc');
     const prestigeEl = document.getElementById('prestige');
     const upgradeCostEl = document.getElementById('upgrade-cost');
@@ -175,8 +196,14 @@
 
     function addPoints(e) {
       points += pointsPerClick;
+      if (points > highScore) {
+        highScore = points;
+        localStorage.setItem('clickerHighScore', highScore);
+      }
       pointEl.textContent = points;
+      highScoreEl.textContent = highScore;
       showClickEffect(e.clientX, e.clientY, `+${pointsPerClick}`);
+      console.log('Points added:', points, 'High Score:', highScore);
     }
 
     function buyUpgrade() {
@@ -186,6 +213,7 @@
         pointsPerClick = baseClickPower * (1 + prestigePoints);
         upgradeCost = Math.floor(upgradeCost * 1.75);
         updateUI();
+        console.log('Upgrade bought: baseClickPower=', baseClickPower, 'pointsPerClick=', pointsPerClick);
       } else {
         alert("Not enough points!");
       }
@@ -200,6 +228,7 @@
         pointsPerClick = baseClickPower * (1 + prestigePoints);
         prestigeCost = Math.floor(prestigeCost * 2);
         updateUI();
+        console.log('Prestiged: prestigePoints=', prestigePoints);
       } else {
         alert("Not enough points to prestige!");
       }
@@ -211,6 +240,7 @@
       prestigeEl.textContent = prestigePoints;
       upgradeCostEl.textContent = upgradeCost;
       prestigeCostEl.textContent = prestigeCost;
+      highScoreEl.textContent = highScore;
     }
 
     function showClickEffect(x, y, text) {
@@ -227,17 +257,19 @@
       const isLightMode = document.body.classList.contains('light');
       document.body.classList.toggle('light');
       localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
     }
 
     window.onload = () => {
-      // Apply dark mode from localStorage
       const isLight = localStorage.getItem('darkMode') === 'true';
       if (isLight) {
         document.body.classList.add('light');
       }
+      highScoreEl.textContent = highScore;
+      updateUI();
+      console.log('Initial theme. Light mode:', isLight);
+      console.log('Initial high score:', highScore);
     };
-
-    updateUI();
   </script>
 </body>
 </html>

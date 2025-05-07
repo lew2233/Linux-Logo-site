@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Tux Maze</title>
+  <meta name="description" content="Navigate Tux through the maze in this Linux-themed game!">
+  <meta name="keywords" content="Linux, Maze, Tux, Game">
+  <title>🧩 Tux Maze</title>
   <style>
     :root {
       --bg: #000;
       --fg: #00fff7;
       --highlight: #00ff00;
-      --button-bg: #00fff7;
-      --button-hover: #00ccff;
       --text-shadow: 0 0 10px var(--fg);
     }
 
@@ -18,8 +18,6 @@
       --bg: #fff;
       --fg: #222;
       --highlight: #00cc00;
-      --button-bg: #e0e0e0;
-      --button-hover: #cfcfcf;
       --text-shadow: none;
     }
 
@@ -37,7 +35,8 @@
     }
 
     h1 {
-      margin: 20px 0 10px;
+      font-size: 2.5rem;
+      margin: 10px 0;
       text-shadow: var(--text-shadow);
     }
 
@@ -49,21 +48,18 @@
     }
 
     .back-link {
-      padding: 10px 20px;
+      margin-top: 10px;
+      color: var(--fg);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--fg);
       font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      background: var(--button-bg);
-      color: var(--bg);
       cursor: pointer;
-      box-shadow: 0 0 10px var(--button-bg);
-      transition: 0.2s;
+      text-align: center;
     }
 
     .back-link:hover {
-      background: var(--button-hover);
-      box-shadow: 0 0 20px var(--fg);
-      transform: scale(1.05);
+      color: #ff00c8;
+      border-color: #ff00c8;
     }
 
     .maze {
@@ -77,7 +73,7 @@
       width: 40px;
       height: 40px;
       background: #111;
-      border: 1px solid var(--fg)20;
+      border: 1px solid var(--fg);
       transition: background 0.3s;
     }
 
@@ -88,6 +84,7 @@
     .player {
       background-image: url('/assets/tux.svg');
       background-size: cover;
+      background-position: center;
       animation: bounce 0.2s;
     }
 
@@ -101,34 +98,50 @@
       100% { transform: scale(1); }
     }
 
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .game-btn {
+      background: none;
+      border: 2px solid var(--fg);
+      color: var(--fg);
       padding: 10px 20px;
       font-size: 1rem;
-      margin: 10px;
-      border: none;
-      border-radius: 10px;
-      background: var(--button-bg);
-      color: var(--bg);
       cursor: pointer;
-      box-shadow: 0 0 10px var(--button-bg);
-      transition: 0.2s;
+      font-family: 'Courier New', monospace;
+      margin: 5px;
+      transition: transform 0.2s, color 0.2s, border-color 0.2s;
     }
 
     .game-btn:hover {
-      background: var(--button-hover);
-      box-shadow: 0 0 20px var(--fg);
+      color: #ff00c8;
+      border-color: #ff00c8;
       transform: scale(1.05);
     }
 
     .status {
-      margin: 10px;
+      margin: 10px 0;
+      font-size: 1.2rem;
+    }
+
+    #high-score {
+      margin: 10px 0;
       font-size: 1.2rem;
     }
 
     #win-screen {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(0, 0, 0, 0.95);
       color: var(--highlight);
       font-size: 2rem;
@@ -143,35 +156,42 @@
       .maze { transform: scale(0.85); }
       .cell { width: 30px; height: 30px; }
       .game-btn { font-size: 0.9rem; padding: 8px 15px; }
-      .status { font-size: 1rem; }
+      .status, #high-score { font-size: 1rem; }
     }
   </style>
 </head>
 <body>
   <div class="top-bar">
-    <button class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'">← Back to Arcade</button>
+    <div class="back-link" onclick="window.location.href='/minigames.html'" tabindex="0" onkeypress="if(event.key === 'Enter') window.location.href='/minigames.html'" aria-label="Back to arcade">← Back to Arcade</div>
   </div>
   <h1>🧩 Tux Maze</h1>
   <div id="status" class="status">
     <p>Time: <span id="timer">60</span>s | Moves: <span id="moveCount">0</span></p>
   </div>
+  <div id="high-score" class="status">
+    <p>Best Time: <span id="best-time">N/A</span> | Best Moves: <span id="best-moves">N/A</span></p>
+  </div>
   <div id="maze" class="maze"></div>
 
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <div><button class="game-btn" onclick="movePlayer(0, -1)" aria-label="Move up">↑</button></div>
+  <div class="controls">
+    <div>
+      <button class="game-btn" onclick="movePlayer(0, -1)" aria-label="Move up">↑</button>
+    </div>
     <div>
       <button class="game-btn" onclick="movePlayer(-1, 0)" aria-label="Move left">←</button>
       <button class="game-btn" onclick="movePlayer(0, 1)" aria-label="Move down">↓</button>
       <button class="game-btn" onclick="movePlayer(1, 0)" aria-label="Move right">→</button>
     </div>
+    <button class="game-btn" onclick="nextLevel()" aria-label="Next level">Next Level</button>
+    <button class="game-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
   </div>
 
-  <button class="game-btn" onclick="nextLevel()" aria-label="Next level">Next Level</button>
-
-  <div id="win-screen" class="status" style="display:none;flex;">
+  <div id="win-screen" class="status" style="display:none;">
     <h2>🏆 You beat all the levels!</h2>
     <button class="game-btn" onclick="restartGame()" aria-label="Restart game">Restart</button>
   </div>
+
+  <img src="/assets/tux.svg" alt="Tux Penguin" class="tux" loading="lazy" onerror="this.src='/assets/tux.png'; this.onerror=() => console.warn('Failed to load Tux image at /assets/tux.png')" />
 
   <script>
     const levels = [
@@ -238,6 +258,10 @@
     const moveCountEl = document.getElementById('moveCount');
     const timerEl = document.getElementById('timer');
     const winScreen = document.getElementById('win-screen');
+    const bestTimeEl = document.getElementById('best-time');
+    const bestMovesEl = document.getElementById('best-moves');
+    let bestTime = parseInt(localStorage.getItem('mazeBestTime')) || Infinity;
+    let bestMoves = parseInt(localStorage.getItem('mazeBestMoves')) || Infinity;
 
     function drawMaze(levelData) {
       mazeEl.innerHTML = '';
@@ -268,6 +292,17 @@
         const target = level[newY][newX];
         if (target !== '#') {
           if (target === 'G') {
+            const timeTaken = 60 - timeRemaining;
+            if (timeTaken < bestTime) {
+              bestTime = timeTaken;
+              localStorage.setItem('mazeBestTime', bestTime);
+              bestTimeEl.textContent = `${bestTime}s`;
+            }
+            if (moveCount < bestMoves) {
+              bestMoves = moveCount;
+              localStorage.setItem('mazeBestMoves', bestMoves);
+              bestMovesEl.textContent = bestMoves;
+            }
             nextLevel(true);
             return;
           }
@@ -319,6 +354,13 @@
       }, 1000);
     }
 
+    function toggleTheme() {
+      const isLightMode = document.body.classList.contains('light');
+      document.body.classList.toggle('light');
+      localStorage.setItem('darkMode', !isLightMode);
+      console.log('Theme toggled. Light mode:', !isLightMode);
+    }
+
     document.addEventListener('keydown', e => {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
@@ -349,13 +391,14 @@
     document.body.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
     window.onload = () => {
-      // Apply dark mode from localStorage
       const isLight = localStorage.getItem('darkMode') === 'true';
-      if (isLight) {
-        document.body.classList.add('light');
-      }
+      if (isLight) document.body.classList.add('light');
       drawMaze(levels[currentLevel]);
       resetTimer();
+      bestTimeEl.textContent = bestTime === Infinity ? 'N/A' : `${bestTime}s`;
+      bestMovesEl.textContent = bestMoves === Infinity ? 'N/A' : bestMoves;
+      console.log('Initial theme. Light mode:', isLight);
+      console.log('Initial best time:', bestTime, 'Initial best moves:', bestMoves);
     };
   </script>
 </body>
